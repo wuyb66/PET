@@ -490,7 +490,7 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
 class CounterConfigurationAdmin(admin.ModelAdmin):
     list_display = ('averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
                     'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
-                    'appliedUBDNumber','totalCounterNumber',
+                    'appliedUBDNumber','groupBundleNumber', 'groupBucketNumber',
                     )
 
     list_filter = ('project',)
@@ -503,11 +503,18 @@ class CounterConfigurationAdmin(admin.ModelAdmin):
 
     form = CounterConfigurationForm
 
+    def has_add_permission(self, request):
+        if CounterConfiguration.objects.all().filter(project=WorkingProject.objects.all()[0].project).count() > 0:
+            return False
+        else:
+            return True
+
     def get_readonly_fields(self, request, obj=None):
         if WorkingProject.objects.count() == 0:
             return ['averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
                     'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
-                    'appliedUBDNumber', 'totalCounterNumber', 'generateMultipleAMAForCounter'
+                    'appliedUBDNumber', 'totalCounterNumber', 'generateMultipleAMAForCounter',
+                    'groupBundleNumber', 'groupBucketNumber',
                     ]
         return self.readonly_fields
 
@@ -544,6 +551,10 @@ class CounterConfigurationAdmin(admin.ModelAdmin):
                     ('generateMultipleAMAForCounter',),
                     # ('turnOnBasicCriteriaCheck', 'generateMultipleAMAForCounter',),
                     ('configureForCallType',)
+                ]}),
+            ('Group Counter Information', {
+                'fields': [
+                    ('groupBundleNumber', 'groupBucketNumber',),
                 ]}),
         ]
 

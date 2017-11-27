@@ -471,6 +471,16 @@ class CounterConfigurationForm(forms.ModelForm):
         initial=0,
         # widget=forms.NumberInput(attrs={'style': 'width:100px'}),
     )
+
+    groupBundleNumber = forms.FloatField(
+        initial=0,
+        label='Number of Group Bundle',
+    )
+    groupBucketNumber = forms.FloatField(
+        initial=0,
+        label='Group Bucket Number',
+    )
+
     class Meta:
         model = CounterConfiguration
 
