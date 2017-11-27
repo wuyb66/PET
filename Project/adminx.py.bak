@@ -1,0 +1,595 @@
+#from django.contrib import admin
+import xadmin
+from xadmin import views, Settings
+from .views import SetWorkingProjectAction
+
+from django import forms
+
+from xadmin.views import CommAdminView
+from xadmin.layout import Main, TabHolder, Tab, Fieldset, Field, Row, Col, Div, AppendedText, Side
+from xadmin.plugins.inline import Inline
+from Hardware.models import HardwareModel
+from xadmin.plugins.batch import BatchChangeAction
+from .models import Project, ProjectInformation, TrafficInformation, FeatureConfiguration, DBConfiguration, \
+    CounterConfiguration, CallTypeCounterConfiguration, SystemConfiguration, Customer, IDC, MaintainLog, Host
+
+class HardwareModelForm(forms.ModelForm):
+    class Meta:
+        forms.model = HardwareModel
+
+class MaintainInline(object):
+    model = MaintainLog
+    extra = 1
+    style = "accordion"
+
+@xadmin.sites.register(Host)
+class HostAdmin(object):
+
+    def open_web(self, instance):
+        return "<a href='http://%s' target='_blank'>Open</a>" % instance.ip
+    open_web.short_description = "Acts"
+    open_web.allow_tags = True
+    open_web.is_column = True
+
+    form = HardwareModelForm
+
+    list_display = ('name', 'idc', 'guarantee_date', 'service_type', 'status', 'open_web', 'description')
+    list_display_links = ('name',)
+
+
+    raw_id_fields = ('idc',)
+    style_fields = {'system': "radio-inline"}
+
+    search_fields = ['name', 'ip', 'description']
+    list_filter = ['id','idc', 'guarantee_date', 'status', 'brand', 'model',
+                   'cpu', 'core_num', 'hard_disk', 'memory', ('service_type',xadmin.filters.MultiSelectFieldListFilter)]
+
+    #list_quick_filter = ['service_type',{'field':'idc__name','limit':10}]
+    list_bookmarks = [{'title': "Need Guarantee", 'query': {'status__exact': 2}, 'order': ('-guarantee_date',), 'cols': ('brand', 'guarantee_date', 'service_type')}]
+
+    show_detail_fields = ('idc',)
+    list_editable = (
+        'name', 'idc', 'guarantee_date', 'service_type', 'description')
+    save_as = True
+
+    aggregate_fields = {"guarantee_date": "min"}
+    grid_layouts = ('table', 'thumbnails')
+
+    form_layout = (
+        Main(
+            TabHolder(
+                Tab('Comm Fields',
+                           Fieldset('Company data',
+                                           'name', 'idc',
+                                           description="some comm fields, required"
+                                           ),
+                           #                    Inline(MaintainLog),
+                           ),
+                Tab('Extend Fields',
+                           Fieldset('Contact details',
+                                           'service_type',
+                                           Row('brand', 'model'),
+                                           Row('cpu', 'core_num'),
+                                           Row(AppendedText(
+                                               'hard_disk', 'G'), AppendedText('memory', "G")),
+                                           'guarantee_date'
+                                           ),
+                           ),
+            ),
+        ),
+        Side(
+            Fieldset('Status data',
+                            'status', 'ssh_port', 'ip'
+                            ),
+        )
+    )
+
+    inlines = [MaintainInline]
+    reversion_enable = True
+    #     relfield_style = 'fk-ajax'
+
+    data_charts = {
+        "host_service_type_counts": {'title': u"Host service type count", "x-field": "service_type", "y-field": ("service_type",),
+                                     "option": {
+                                         "series": {"bars": {"align": "center", "barWidth": 0.8,'show':True}},
+                                         "xaxis": {"aggregate": "count", "mode": "categories"},
+                                     },
+                                     },
+    }
+    model_icon = 'fa fa-laptop'
+# class HostAdmin(object):
+#     def open_web(self, instance):
+#         return """<a href="http://%s" target="_blank">Open</a>""" % instance.ip
+#
+#     open_web.short_description = "Acts"
+#     open_web.allow_tags = True
+#     open_web.is_column = True
+#
+#     list_display = (
+#         "name", "idc", "guarantee_date", "service_type", "status", "open_web",
+#         "description", "ip",
+#     )
+#     list_display_links = ("name",)
+#
+#     raw_id_fields = ("idc",)
+#     style_fields = {"system": "radio-inline"}
+#
+#     search_fields = ["name", "ip", "description"]
+#     list_filter = [
+#         "idc", "guarantee_date", "status", "brand", "model", "cpu", "core_num",
+#         "hard_disk", "memory", (
+#             "service_type",
+#             xadmin.filters.MultiSelectFieldListFilter,
+#         ),
+#     ]
+#
+#     list_quick_filter = ["service_type", {"field": "idc__name", "limit": 10}]
+#     # list_quick_filter = ["idc_id"]
+#     list_bookmarks = [{
+#         "title": "Need Guarantee",
+#         "query": {"status__exact": 2},
+#         "order": ("-guarantee_date",),
+#         "cols": ("brand", "guarantee_date", "service_type"),
+#     }]
+#
+#     show_detail_fields = ("idc",)
+#     list_editable = (
+#         "name", "idc", "guarantee_date", "service_type", "description", "ip"
+#     )
+#     save_as = True
+#
+#     aggregate_fields = {"guarantee_date": "min"}
+#     grid_layouts = ("table", "thumbnails")
+#
+#     form_layout = (
+#         Main(
+#             TabHolder(
+#                 Tab(
+#                     "Comm Fields",
+#                     Fieldset(
+#                         "Company data", "name", "idc",
+#                         description="some comm fields, required",
+#                     ),
+#                     Inline(MaintainLog),
+#                 ),
+#                 Tab(
+#                     "Extend Fields",
+#                     Fieldset(
+#                         "Contact details",
+#                         "service_type",
+#                         Row("brand", "model"),
+#                         Row("cpu", "core_num"),
+#                         Row(
+#                             AppendedText("hard_disk", "G"),
+#                             AppendedText("memory", "G")
+#                         ),
+#                         "guarantee_date"
+#                     ),
+#                 ),
+#             ),
+#         ),
+#         Side(
+#             Fieldset("Status data", "status", "ssh_port", "ip"),
+#         )
+#     )
+#     inlines = [MaintainInline]
+#     reversion_enable = True
+#
+#     data_charts = {
+#         "host_service_type_counts": {'title': u"Host service type count", "x-field": "service_type",
+#                                      "y-field": ("service_type",),
+#                                      "option": {
+#                                          "series": {"bars": {"align": "center", "barWidth": 0.8, 'show': True}},
+#                                          "xaxis": {"aggregate": "count", "mode": "categories"},
+#                                      },
+#                                      },
+#     }
+
+@xadmin.sites.register(views.website.IndexView)
+class MainDashboard(object):
+    widgets = [
+        [
+            {"type": "html", "title": "Test Widget",
+             "content": "<h3> Welcome to Xadmin! </h3><p>Join Online Group: <br/>QQ Qun : 282936295</p>"},
+            {"type": "chart", "model": "app.accessrecord", "chart": "user_count",
+             "params": {"_p_date__gte": "2013-01-08", "p": 1, "_p_date__lt": "2013-01-29"}},
+            {"type": "list", "model": "app.host", "params": {"o": "-guarantee_date"}},
+        ],
+        [
+            {"type": "qbutton", "title": "Quick Start",
+             "btns": [{"model": Project}, {"model": Customer}, {"title": "Google", "url": "http://www.google.com"}]},
+            {"type": "addform", "model": SystemConfiguration},
+        ]
+    ]
+
+@xadmin.sites.register(views.BaseAdminView)
+class BaseSetting(object):
+    enable_themes = True
+    use_bootswatch = True
+    show_bookmarks = False
+
+
+@xadmin.sites.register(views.CommAdminView)
+class GlobalSetting(object):
+
+    global_search_models = [Project, Customer]
+    global_models_icon = {
+        Project: "fa fa-laptop", Customer: "fa fa-cloud"
+    }
+    menu_style = 'default'  # 'accordion'
+    site_title = "Surepay Performance Engineering Tool"
+    site_footer = "NOKIA 2017"
+
+    def get_site_menu(self):
+        menus = []
+
+        menus.append({
+            'menus': [{
+                'url': '/admin/report',
+                'icon': 'search',
+                'perm': 'main.view_record',
+                'title': 'View BB'
+            }],
+            'first_icon': 'calendar',
+            'title': u'BBCX'
+        })
+        return menus
+        # return (
+        #     {'title': 'nrgl', 'perm': self.get_model_perm(Project, 'change'), 'menus':(
+        #         {'title': 'yxzl', 'icon': 'info-sign', 'url': self.get_model_url(Project, 'changelist') + '?_rel_categories__id__exact=2'},
+        #         {'title': 'wzwz', 'icon': 'file', 'url': self.get_model_url(Project, 'changelist') + '?_rel_categories__id__exact=1'},
+        #     )},
+        #     {'title': 'flgl', 'perm': self.get_model_perm(Project, 'change'), 'menus':(
+        #         {'title': 'zyfl', 'url': self.get_model_url(Project, 'changelist') + '?_p_parent__isnull=True'},
+        #         {'title': 'yxzl', 'url': self.get_model_url(Project, 'changelist') + '?_rel_parent__id__exact=2'},
+        #     )},
+        # )
+
+
+# class ProjectInline(admin.TabularInline):
+#     model = Project
+#     suit_classes = 'suit-tab suit-tab-projects suit-tab-hardwares'
+class HardwareModelInline(object):
+    model = HardwareModel
+    fields = ('hardwareType', 'cpu')
+
+class TrafficInline(object):
+    model = TrafficInformation
+    extra = 1
+    style = "accordion"
+    list_display = ('name', 'activeSubscriber', 'inactiveSubscriber', 'trafficBHTA', 'trafficTPS',
+                    'callHoldingTime',)
+    exclude = ('averageActiveSessionPerSubscriber', 'averageCategoryPerCCR',
+                       'averageCategoryPerSession', 'volumeCCRiBHTA', 'volumeCCRuBHTA', 'volumeCCRtBHTA',
+                       'timeCCRiBHTA', 'timeCCRuBHTA', 'timeCCRtBHTA')
+    form_layout = (
+        Main(
+            TabHolder(
+                Tab(
+                    "Traffic Information",
+                    Fieldset(
+                        'Traffic Information',
+                        'callType',
+                        Row('activeSubscriber', 'inactiveSubscriber'),
+                        Row('callHoldingTime', ),
+                        'trafficBHTA', 'trafficTPS',
+                    ),
+                ),
+            ),
+        ),
+
+    )
+    # other_fieldset = []
+# class DiameterTrafficInline(object):
+#     model = TrafficInformation
+#     extra = 1
+#     style = "accordion"
+#     list_display = ('name', 'activeSubscriber', 'inactiveSubscriber', 'trafficBHTA', 'trafficTPS',
+#                     'callHoldingTime',)
+#     # exclude = ('averageActiveSessionPerSubscriber', 'averageCategoryPerCCR',
+#     #            'averageCategoryPerSession', 'volumeCCRiBHTA', 'volumeCCRuBHTA', 'volumeCCRtBHTA',
+#     #            'timeCCRiBHTA', 'timeCCRuBHTA', 'timeCCRtBHTA')
+#     form_layout = (
+#         Main(
+#             TabHolder(
+#                 Tab(
+#                     "Diameter Traffic Information",
+#                     Fieldset(
+#                         'Diameter Traffic Information',
+#                         'callType',
+#                         Row('activeSubscriber', 'inactiveSubscriber'),
+#                         Row('callHoldingTime', ),
+#                         'trafficBHTA', 'trafficTPS',
+#                         'averageActiveSessionPerSubscriber', 'averageCategoryPerCCR',
+#                         'averageCategoryPerSession',
+#                         Row('volumeCCRiBHTA', 'volumeCCRuBHTA', 'volumeCCRtBHTA'),
+#                         Row('timeCCRiBHTA', 'timeCCRuBHTA', 'timeCCRtBHTA')
+#                     ),
+#                 ),
+#             ),
+#         ),
+#
+#     )
+    # other_fieldset = []
+@xadmin.sites.register(Project)
+class ProjectAdmin(object):
+    actions = [SetWorkingProjectAction, ]
+
+    form = HardwareModelForm
+
+
+    list_display = ('name', 'customer', 'version', 'createTime',
+                    'hardwareType',  'cpu', 'database_type', )
+
+    # wizard_form_list = [
+    #     ('General', ('release', 'customer', 'version',)),
+    #     ('Hardware Information', ('hardwareType', 'database_type', )),
+    # ]
+    exclude = ('user',)
+    form_layout = (
+        Main(
+            TabHolder(
+                Tab(
+                    "Project",
+                    Fieldset(
+                        'General Information',
+                        'name',
+                        Row('release', 'customer',),
+                        Row('hardwareType', 'cpu',),
+                        Row('database_type','version',),
+                        'comment',
+
+                        description="General information for project",
+                    ),
+                ),
+            ),
+        ),
+        # Side(
+        #     Fieldset("Status data", 'amaRecordPerBillingBlock', 'averageAMARecordPerCall', 'amaStoreDay'),
+        # )
+    )
+
+    #inlines = [TrafficInline]
+    #inlines = (TrafficInline, DiameterTrafficInline)
+
+    list_filter = ('user', 'release', 'hardwareType', 'customer', 'database_type')
+
+    search_fields = ('user__username', 'release__name', 'hardwareType__name',
+                      'customer', 'database_type__name')
+
+@xadmin.sites.register(ProjectInformation)
+class ProjectInformationAdmin(object):
+
+
+    list_display = ('name',  'cpuNumber', 'memory',
+                    'clientNumber', 'sigtranLinkSpeed', 'sigtranLinkNumber', 'sigtranPortUtil',
+                    'amaRecordPerBillingBlock', 'numberReleaseToEstimate', 'cpuImpactPerRelease',
+                    'memoryImpactPerRelease', 'dbImpactPerRelease', 'deploy_option',
+                    'averageAMARecordPerCall', 'amaStoreDay', 'activeSubscriber', 'inactiveSubscriber',
+                    'groupAccountNumber', 'cpuUsageTuning', 'memoryUsageTuning')
+
+    wizard_form_list = [
+        ('Hardware Information', ('vmType', 'cpuNumber', 'memory','clientNumber')),
+        ('Network Information', ('sigtranLinkSpeed', 'sigtranLinkNumber', 'sigtranPortUtil')),
+        ('AMA Information', ('amaRecordPerBillingBlock', 'averageAMARecordPerCall', 'amaStoreDay')),
+        ('Release Impact', ('numberReleaseToEstimate', 'cpuImpactPerRelease',
+                            'memoryImpactPerRelease', 'dbImpactPerRelease')),
+        ('DB Information',( 'deploy_option')),
+        ('Subscriber Information', ('activeSubscriber', 'inactiveSubscriber')),
+
+    ]
+
+    form_layout = (
+        Main(
+            TabHolder(
+
+                Tab(
+                    "Hardware Information",
+                    Fieldset(
+                        "Hardware Information",
+                        Row('cpu', 'vmType'),
+                        Row('cpuNumber', AppendedText('memory', 'G'),'clientNumber'),
+                        'cpuUsageTuning', 'memoryUsageTuning'
+                    ),
+                    inlines = [HardwareModelInline, ]
+                ),
+                Tab(
+                    "Network Information",
+                    Fieldset(
+                        "Network Information",
+                        'sigtranLinkSpeed', 'sigtranLinkNumber', 'sigtranPortUtil'
+                    ),
+                ),
+                Tab(
+                    "Release Impact",
+                    Fieldset(
+                        "Release Impact",
+                        'numberReleaseToEstimate', 'cpuImpactPerRelease',
+                        'memoryImpactPerRelease', 'dbImpactPerRelease'
+                    ),
+                ),
+                Tab(
+                    "DB Information",
+                    Fieldset(
+                        "DB Information",
+                        'deploy_option'
+                    ),
+                ),
+                Tab(
+                    "Subscriber Information",
+                    Fieldset(
+                        "Subscriber Information",
+                        'activeSubscriber', 'inactiveSubscriber', 'groupAccountNumber'
+                    ),
+                ),
+
+                Tab(
+                    "AMA Information",
+                    Fieldset(
+                        "AMA Information",
+                        'amaRecordPerBillingBlock', 'averageAMARecordPerCall', 'amaStoreDay'
+                    ),
+                ),
+            ),
+        ),
+        # Side(
+        #     Fieldset("Status data", 'amaRecordPerBillingBlock', 'averageAMARecordPerCall', 'amaStoreDay'),
+        # )
+    )
+
+    #inlines = [TrafficInline]
+    #inlines = (TrafficInline, DiameterTrafficInline)
+
+    # list_filter = ('user', 'release', 'hardwareModel', 'customer', 'vmType', 'database_type')
+    #
+    # search_fields = ('user__username', 'release__name', 'hardwareModel__hardwareType__name',
+    #                  'hardwareModel__cpu__name', 'customer', 'vmType__type', 'database_type__name')
+
+    # def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+    #     if db_field.name == 'bank':
+    #         kwargs['queryset'] = BankAccount.objects.exclude(org__exact=None)
+    #     return super(PaymentAdmin,self).formfield_for_foreignkey(db_field,request,**kwargs)
+
+
+class TrafficInformationAdmin(object):
+    list_display = ('name', 'activeSubscriber', 'inactiveSubscriber', 'trafficBHTA', 'trafficTPS',
+                    'callHoldingTime', 'averageActiveSessionPerSubscriber', 'averageCategoryPerCCR',
+                    'averageCategoryPerSession', 'volumeCCRiBHTA', 'volumeCCRuBHTA', 'volumeCCRtBHTA',
+                    'timeCCRiBHTA', 'timeCCRuBHTA', 'timeCCRtBHTA' )
+
+    list_filter = ('project', 'callType')
+
+    search_fields = ('callType__name', 'project__user__username', 'project__release__name',
+                     'project__hardwareModel__hardwareType__name',
+                     'project__hardwareModel__cpu__name', 'project__customer',
+                     'project__vmType__type', 'project__database_type__name')
+
+    # form_layout = (
+    #     Main(
+    #         TabHolder(
+    #             Tab(
+    #                 "Comm Fields",
+    #                 Fieldset(
+    #                     'Common',
+    #                     'callType', 'project',
+    #
+    #                     description="some comm fields, required",
+    #                 ),
+    #                 Inline(MaintainLog),
+    #             ),
+    #             Tab(
+    #                 "Extend Fields",
+    #                 Fieldset(
+    #                     "Contact details",
+    #
+    #
+    #                     Row(Field('activeSubscriber', title="Active Subscriber"), 'inactiveSubscriber'),
+    #                     Row('callHoldingTime', 'averageActiveSessionPerSubscriber',),
+    #                     Row('averageCategoryPerSession', 'averageCategoryPerSession',),
+    #                     Row('volumeCCRiBHTA','volumeCCRuBHTA', 'volumeCCRtBHTA',),
+    #                     Div('timeCCRiBHTA', 'timeCCRuBHTA', 'timeCCRtBHTA'),
+    #                     Div('active_Subscriber', style="background: white;", title="Active Subscriber", css_class="bigdivs")
+    #
+    #                 ),
+    #             ),
+    #         ),
+    #     ),
+        # Side(
+        #     Fieldset("Status data", 'activeSubscriber', 'inactiveSubscriber', 'trafficBHTA', 'trafficTPS'),
+        #)
+    #)
+    form_layout = (
+
+        Col(
+            "Comm Fields",
+            Fieldset(
+                'Common',
+                'callType', 'project',
+
+                #description="some comm fields, required",
+            ),
+            span=4, horizontal=True
+        ),
+        Col(
+            "Extend Fields",
+            Fieldset(
+                "Contact details",
+
+
+                Row(Field('activeSubscriber', title="Active Subscriber"), 'inactiveSubscriber'),
+                Row('callHoldingTime', 'averageActiveSessionPerSubscriber',),
+                Row('averageCategoryPerSession', 'averageCategoryPerSession',),
+                Row('volumeCCRiBHTA','volumeCCRuBHTA', 'volumeCCRtBHTA',),
+                Div('timeCCRiBHTA', 'timeCCRuBHTA', 'timeCCRtBHTA'),
+                Div('active_Subscriber', style="background: white;", title="Active Subscriber", css_class="bigdivs")
+
+            ),
+            span=8
+        ),
+    )
+
+
+class FeatureConfigurationAdmin(object):
+    list_display = ('name', 'featurePenetration', 'colocateMemberGroup', 'rtdbSolution',
+                    'groupNumber', 'ratioOfLevel1')
+
+    list_filter = ('project', 'feature')
+
+    search_fields = ('feature__name', 'project__user__username', 'project__release__name',
+                     'project__hardwareModel__hardwareType__name',
+                     'project__hardwareModel__cpu__name', 'project__customer',
+                     'project__vmType__type', 'project__database_type__name')
+
+class DBConfigurationAdmin(object):
+    list_display = ('name', 'dbFactor', 'placeholderRatio', 'memberGroupOption')
+
+    list_filter = ('project', 'dbInfo__db', 'dbInfo__mode', 'dbInfo__release', 'memberGroupOption')
+
+    search_fields = ('dbInfo__db__name', 'dbInfo__mode__name', 'project__user__username', 'project__release__name',
+                     'project__hardwareModel__hardwareType__name',
+                     'project__hardwareModel__cpu__name', 'project__customer',
+                     'project__vmType__type', 'project__database_type__name')
+
+class CounterConfigurationAdmin(object):
+    list_display = ('name', 'averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
+                    'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
+                    'appliedUBDNumber', 'generateMultipleAMAForCounter' )
+
+    list_filter = ('project',)
+
+    search_fields = ('project__user__username', 'project__release__name',
+                     'project__hardwareModel__hardwareType__name',
+                     'project__hardwareModel__cpu__name', 'project__customer',
+                     'project__vmType__type', 'project__database_type__name')
+
+class CallTypeCounterConfigurationAdmin(object):
+    list_display = ('name', 'averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
+                    'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
+                    'appliedUBDNumber', 'generateMultipleAMAForCounter' )
+
+    list_filter = ('project', 'callType')
+
+    search_fields = ('callType__name', 'project__user__username', 'project__release__name',
+                     'project__hardwareModel__hardwareType__name',
+                     'project__hardwareModel__cpu__name', 'project__customer',
+                     'project__vmType__type', 'project__database_type__name')
+
+class SystemConfigurationAdmin(object):
+    list_display = ('name', 'cabinetNumberPerSystem', 'backupAppNodeNumberPerSystem',
+                    'spareAppNodeNumberPerSystem', 'backupDBNodeNumberPerSystem')
+
+    list_filter = ('project',)
+
+    search_fields = ('project__user__username', 'project__release__name',
+                     'project__hardwareModel__hardwareType__name',
+                     'project__hardwareModel__cpu__name', 'project__customer',
+                     'project__vmType__type', 'project__database_type__name')
+
+#xadmin.site.register(Project, ProjectAdmin)
+xadmin.site.register(TrafficInformation, TrafficInformationAdmin)
+xadmin.site.register(FeatureConfiguration, FeatureConfigurationAdmin)
+xadmin.site.register(DBConfiguration, DBConfigurationAdmin)
+xadmin.site.register(CounterConfiguration, CounterConfigurationAdmin)
+xadmin.site.register(CallTypeCounterConfiguration, CallTypeCounterConfigurationAdmin)
+xadmin.site.register(SystemConfiguration, SystemConfigurationAdmin)
+xadmin.site.register(Customer)
