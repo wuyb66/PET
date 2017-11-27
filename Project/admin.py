@@ -491,8 +491,7 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
 class CounterConfigurationAdmin(admin.ModelAdmin):
     list_display = ('averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
                     'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
-                    'appliedUBDNumber',
-                    'groupBundleNumber', 'groupBucketNumber',
+                    'appliedUBDNumber','groupBundleNumber', 'groupBucketNumber',
                     )
 
     list_filter = ('project',)

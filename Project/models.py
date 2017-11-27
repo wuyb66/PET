@@ -506,6 +506,28 @@ class CallTypeCounterConfiguration(models.Model):
         verbose_name='Applied UBD Number',
     )
 
+    groupBundleNumber = models.FloatField(
+        default=0,
+        verbose_name='Number of Group Bundle',
+    )
+    groupBucketNumber = models.FloatField(
+        default=0,
+        verbose_name='Group Bucket Number',
+    )
+
+    generateMultipleAMAForCounter = models.BooleanField(
+        default=False,
+        verbose_name='Generate Multiple AMA For Counter',
+    )
+    turnOnBasicCriteriaCheck = models.BooleanField(
+        default=False,
+        verbose_name='Enable Basic Criteria Check',
+    )
+    configureForCallType = models.BooleanField(
+        default=False,
+        verbose_name='Configure Counter For Call Types',
+    )
+
     @property
     def totalBundleNumber(self):
         return self.averageBundleNumberPerSubscriber + self.average24hBundleNumberPerSubscriber
