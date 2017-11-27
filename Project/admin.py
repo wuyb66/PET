@@ -444,7 +444,7 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
         if WorkingProject.objects.count() == 0:
             return ['averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
                     'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
-                    'appliedUBDNumber', 'totalCounterNumber', 'generateMultipleAMAForCounter'
+                    'appliedUBDNumber',
                     ]
         return self.readonly_fields
 
@@ -490,7 +490,8 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
 class CounterConfigurationAdmin(admin.ModelAdmin):
     list_display = ('averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
                     'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
-                    'appliedUBDNumber','groupBundleNumber', 'groupBucketNumber',
+                    'appliedUBDNumber',
+                    'groupBundleNumber', 'groupBucketNumber',
                     )
 
     list_filter = ('project',)
@@ -612,7 +613,7 @@ admin.site.register(TrafficInformation, TrafficInformationAdmin)
 admin.site.register(FeatureConfiguration, FeatureConfigurationAdmin)
 admin.site.register(DBConfiguration, DBConfigurationAdmin)
 admin.site.register(CounterConfiguration, CounterConfigurationAdmin)
-# admin.site.register(CallTypeCounterConfiguration, CallTypeCounterConfigurationAdmin)
+admin.site.register(CallTypeCounterConfiguration, CallTypeCounterConfigurationAdmin)
 admin.site.register(SystemConfiguration, SystemConfigurationAdmin)
 admin.site.register(Customer)
 admin.site.register(Province)
