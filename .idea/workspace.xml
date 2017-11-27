@@ -1,25 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-<<<<<<< .mine
     <list default="true" id="c6f530c0-6b4f-4832-be6e-cf5e68cb76fb" name="Default" comment="">
-=======
-    <list default="true" id="c6f530c0-6b4f-4832-be6e-cf5e68cb76fb" name="Default" comment="">
->>>>>>> .theirs
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-<<<<<<< .mine
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Project/models.py" afterPath="$PROJECT_DIR$/Project/models.py" />
-    </list>
-
-
-=======
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Project/admin.py" afterPath="$PROJECT_DIR$/Project/admin.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Project/forms.py" afterPath="$PROJECT_DIR$/Project/forms.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Project/models.py" afterPath="$PROJECT_DIR$/Project/models.py" />
     </list>
->>>>>>> .theirs
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,11 +27,21 @@
         <entry file="file://$PROJECT_DIR$/Project/forms.py">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< .mine
+<<<<<<< .mine
             <state relative-caret-position="215">
               <caret line="481" column="5" lean-forward="true" selection-start-line="474" selection-start-column="4" selection-end-line="481" selection-end-column="5" />
 =======
             <state relative-caret-position="434">
               <caret line="478" column="21" lean-forward="false" selection-start-line="478" selection-start-column="4" selection-end-line="478" selection-end-column="21" />
+>>>>>>> .theirs
+=======
+            <state relative-caret-position="434">
+              <caret line="478" column="21" lean-forward="false" selection-start-line="478" selection-start-column="4" selection-end-line="478" selection-end-column="21" />
+
+
+
+
+
 >>>>>>> .theirs
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
@@ -56,11 +54,21 @@
         <entry file="file://$PROJECT_DIR$/Project/models.py">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< .mine
+<<<<<<< .mine
             <state relative-caret-position="231">
               <caret line="476" column="42" lean-forward="true" selection-start-line="476" selection-start-column="42" selection-end-line="476" selection-end-column="42" />
 =======
             <state relative-caret-position="112">
               <caret line="463" column="45" lean-forward="true" selection-start-line="463" selection-start-column="45" selection-end-line="463" selection-end-column="45" />
+>>>>>>> .theirs
+=======
+            <state relative-caret-position="112">
+              <caret line="463" column="45" lean-forward="true" selection-start-line="463" selection-start-column="45" selection-end-line="463" selection-end-column="45" />
+
+
+
+
+
 >>>>>>> .theirs
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
@@ -83,11 +91,21 @@
         <entry file="file://$PROJECT_DIR$/Project/admin.py">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< .mine
+<<<<<<< .mine
             <state relative-caret-position="343">
               <caret line="560" column="0" lean-forward="true" selection-start-line="560" selection-start-column="0" selection-end-line="560" selection-end-column="0" />
 =======
             <state relative-caret-position="791">
               <caret line="552" column="45" lean-forward="true" selection-start-line="552" selection-start-column="45" selection-end-line="552" selection-end-column="45" />
+>>>>>>> .theirs
+=======
+            <state relative-caret-position="791">
+              <caret line="552" column="45" lean-forward="true" selection-start-line="552" selection-start-column="45" selection-end-line="552" selection-end-column="45" />
+
+
+
+
+
 >>>>>>> .theirs
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
@@ -146,10 +164,20 @@
       <find>CallTypeCounterConfigurationForm</find>
       <find>inline</find>
 <<<<<<< .mine
+<<<<<<< .mine
       <find>appliedBucketNumber</find>
       <find>add</find>
 =======
       <find>add</find>
+
+>>>>>>> .theirs
+=======
+      <find>add</find>
+
+
+
+
+
 
 >>>>>>> .theirs
     </findStrings>
@@ -1185,11 +1213,21 @@
     <entry file="file://$PROJECT_DIR$/Project/forms.py">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< .mine
+<<<<<<< .mine
         <state relative-caret-position="215">
           <caret line="481" column="5" lean-forward="true" selection-start-line="474" selection-start-column="4" selection-end-line="481" selection-end-column="5" />
 =======
         <state relative-caret-position="434">
           <caret line="478" column="21" lean-forward="false" selection-start-line="478" selection-start-column="4" selection-end-line="478" selection-end-column="21" />
+>>>>>>> .theirs
+=======
+        <state relative-caret-position="434">
+          <caret line="478" column="21" lean-forward="false" selection-start-line="478" selection-start-column="4" selection-end-line="478" selection-end-column="21" />
+
+
+
+
+
 >>>>>>> .theirs
           <folding>
             <element signature="e#0#24#0" expanded="true" />
@@ -1200,11 +1238,21 @@
     <entry file="file://$PROJECT_DIR$/Project/admin.py">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< .mine
+<<<<<<< .mine
         <state relative-caret-position="343">
           <caret line="560" column="0" lean-forward="true" selection-start-line="560" selection-start-column="0" selection-end-line="560" selection-end-column="0" />
 =======
         <state relative-caret-position="791">
           <caret line="552" column="45" lean-forward="true" selection-start-line="552" selection-start-column="45" selection-end-line="552" selection-end-column="45" />
+>>>>>>> .theirs
+=======
+        <state relative-caret-position="791">
+          <caret line="552" column="45" lean-forward="true" selection-start-line="552" selection-start-column="45" selection-end-line="552" selection-end-column="45" />
+
+
+
+
+
 >>>>>>> .theirs
           <folding>
             <element signature="e#0#32#0" expanded="true" />
@@ -1212,6 +1260,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< .mine
 <<<<<<< .mine
     <entry file="file://$PROJECT_DIR$/Project/models.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -1234,6 +1283,31 @@
         </state>
       </provider>
     </entry>
+>>>>>>> .theirs
+=======
+    <entry file="file://$PROJECT_DIR$/Project/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="463" column="45" lean-forward="true" selection-start-line="463" selection-start-column="45" selection-end-line="463" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+
+
+
+
+
+
+
+
+
+
+
+
+
 >>>>>>> .theirs
   </component>
 </project>
