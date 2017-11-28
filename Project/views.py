@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.views.generic import ListView
 from .models import Project
 
-from xadmin.plugins.actions import BaseActionView
-from xadmin.views.base import filter_hook, ModelAdminView
+# from xadmin.plugins.actions import BaseActionView
+# from xadmin.views.base import filter_hook, ModelAdminView
 from django.template.response import TemplateResponse
 from django.http import HttpResponse
 
@@ -13,9 +13,10 @@ from django.core import serializers, urlresolvers
 from Service.models import CurrentRelease
 
 from . import forms
-from .models import Province, SelectP, City, Project
+from .models import Project, TrafficInformation, WorkingProject, FeatureConfiguration
 from Hardware.models import HardwareModel, HardwareType
-from .forms import SelectForm, ProjectForm1
+from Service.models import DBInformation, FeatureDBImpact, FeatureName
+from .forms import ProjectForm1
 
 import json
 
@@ -68,26 +69,26 @@ def Return_Country_Data(request):
     Country_list = Place_dict[province][city]
     return HttpResponse(json.dumps(Country_list))
 
-def index(request):
-    if request.method == 'POST':
-        form = SelectForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect(urlresolvers.reverse('select_index'))
-        else:
-            return HttpResponse('error')
-    else:
-        pro = Province.objects.all()
-        se = SelectP.objects.all()
-        return render(request, 'Project/project_list.html', {'province':pro,'select':se})
+# def index(request):
+#     if request.method == 'POST':
+#         form = SelectForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect(urlresolvers.reverse('select_index'))
+#         else:
+#             return HttpResponse('error')
+#     else:
+#         pro = Province.objects.all()
+#         se = SelectP.objects.all()
+#         return render(request, 'Project/project_list.html', {'province':pro,'select':se})
 
 
-def getdata(request):
-    pk = request.GET['pk']
-    province = get_object_or_404(Province, pk=pk)
-    citys = province.city_set.all()
-    data = serializers.serialize('json', citys)
-    return HttpResponse(data, content_type='application/json')
+# def getdata(request):
+#     pk = request.GET['pk']
+#     province = get_object_or_404(Province, pk=pk)
+#     citys = province.city_set.all()
+#     data = serializers.serialize('json', citys)
+#     return HttpResponse(data, content_type='application/json')
 
 # Create your views here.
 # def index(request):
@@ -126,31 +127,77 @@ def add(request, a, b):
     c = int(a) + int(b)
     r = HttpResponse(ajax_string + str(c))
     return r
-
-class SetWorkingProjectAction(BaseActionView):
-    action_name = "set_working_Project_action"
-    description = 'Set working project'
-    model_perm = 'change'
-
-    @filter_hook
-    def do_action(self, queryset):
-
-        n = queryset.count()
-
-        if n == 1:
-            setWorkingProjectMessage = "Project %s has been set as working project!" % queryset[0].name
-            setWorkingProjectSuccess = True
-
+def getRecordSize(request):
+    pk = request.GET['pk']
+    memberGroupOption = request.GET['memberGroupOption']
+    dbInformation = get_object_or_404(DBInformation, pk=pk)
+    recordSize = dbInformation.recordSize
+    refDBFactor = getRefDBFactor(dbInformation.db, memberGroupOption)
+    subscriberNumber = getSubscriberNumber(memberGroupOption)
+    data = {'RecordSize':recordSize, 'RefDBFactor':refDBFactor, 'SubscriberNumber':subscriberNumber}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+def getRefDBFactor(DB, memberGroupOption):
+    featureDBImpactList = FeatureDBImpact.objects.all().filter(
+        dbName=DB,
+    )
+    refDBFactor = 0
+    if memberGroupOption == 'Member':
+        for featureDBImpact in featureDBImpactList:
+            refDBFactor += featureDBImpact.memberImpactFactor
+    else:
+        for featureDBImpact in featureDBImpactList:
+            refDBFactor += featureDBImpact.groupImpactFactor
+    return refDBFactor
+def getSubscriberNumber(memberGroupOption):
+    if WorkingProject.objects.all().count() > 0:
+        trafficInformationList = TrafficInformation.objects.all().filter(
+            project=WorkingProject.objects.all()[0].project
+        )
+        if trafficInformationList.count() > 0:
+            activeSubscriber = trafficInformationList[0].activeSubscriber
         else:
-            setWorkingProjectMessage = "Please select only one project!"
-            setWorkingProjectSuccess = False
+            activeSubscriber = 0
+        if memberGroupOption == 'Member':
+            return activeSubscriber
+        else:
+            featureNameList = FeatureName.objects.all().filter(
+                name='Online Hierarchy',
+            )
+            if featureNameList.count() > 0:
+                penetrationOLH = FeatureConfiguration.objects.all().filter(
+                    project=WorkingProject.objects.all()[0].project,
+                    feature=featureNameList[0],
+                )
+            else:
+                penetrationOLH = 0
+            return activeSubscriber * penetrationOLH
+    else:
+        return 0
 
-        context = self.get_context()
-        context['setWorkingProjectMessage'] = setWorkingProjectMessage
-        context['setWorkingProjectSuccess'] = setWorkingProjectSuccess
-
-        return TemplateResponse(self.request, self.get_template_list('views/set_working_project_information.html'),
-                                context)
+# class SetWorkingProjectAction(BaseActionView):
+#     action_name = "set_working_Project_action"
+#     description = 'Set working project'
+#     model_perm = 'change'
+#
+#     @filter_hook
+#     def do_action(self, queryset):
+#
+#         n = queryset.count()
+#
+#         if n == 1:
+#             setWorkingProjectMessage = "Project %s has been set as working project!" % queryset[0].name
+#             setWorkingProjectSuccess = True
+#
+#         else:
+#             setWorkingProjectMessage = "Please select only one project!"
+#             setWorkingProjectSuccess = False
+#
+#         context = self.get_context()
+#         context['setWorkingProjectMessage'] = setWorkingProjectMessage
+#         context['setWorkingProjectSuccess'] = setWorkingProjectSuccess
+#
+#         return TemplateResponse(self.request, self.get_template_list('views/set_working_project_information.html'),
+#                                 context)
 
 # def addProject(request):
 #     if request.method == 'POST':
