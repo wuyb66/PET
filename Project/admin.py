@@ -2,11 +2,12 @@ from django.contrib import admin
 from django import forms
 from .models import Project, ProjectInformation, TrafficInformation, FeatureConfiguration, \
     DBConfiguration, CounterConfiguration, CallTypeCounterConfiguration, SystemConfiguration, \
-    Customer, WorkingProject, Province, City, City1, Country, State, \
-    Address, SelectP
+    Customer, WorkingProject, City1, Country, State, Address
+    # Province, City, SelectP
 from Hardware.models import HardwareModel, HardwareType
-from .forms import AddressForm, ProjectForm, ProjectForm1, ProjectInformationForm, \
-    TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, CallTypeCounterConfigurationForm
+from .forms import ProjectForm, ProjectForm1, ProjectInformationForm, \
+    TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, CallTypeCounterConfigurationForm, \
+    DBConfigurationForm
 from django.contrib import messages
 from ajax_select import make_ajax_form
 from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline, AjaxSelectAdminStackedInline
@@ -577,6 +578,51 @@ class CounterConfigurationAdmin(admin.ModelAdmin):
 #                      'project__hardwareModel__hardwareType__name',
 #                      'project__hardwareModel__cpu__name', 'project__customer',
 #                      'project__vmType__type', 'project__database_type__name')
+class DBConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('dbInfo', 'recordSize', 'subscriberNumber', 'dbFactor', 'recordNumber',
+                    'placeholderRatio', 'cacheSize', 'todoLogSize', 'mateLogSize',)
+    list_filter = ('dbInfo__db', 'memberGroupOption')
+    search_fields = ('dbInfo__db__name',)
+    form = DBConfigurationForm
+    def get_readonly_fields(self, request, obj=None):
+        if WorkingProject.objects.count() == 0:
+            return ['dbInfo', 'recordSize', 'subscriberNumber', 'dbFactor', 'recordNumber',
+                    'placeholderRatio', 'cacheSize', 'todoLogSize', 'mateLogSize',
+                    ]
+        return self.readonly_fields
+    class Media:
+        js = ('/static/jquery-2.1.1.min.js',
+              '/static/js/db_configuration.js',
+              )
+    def  get_queryset(self, request):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return DBConfiguration.objects.none()
+        return super(DBConfigurationAdmin,self).get_queryset(request). \
+            filter(
+                project=WorkingProject.objects.all()[0].project,
+        )
+    def get_fieldsets(self, request, obj=None):
+        additionMessage = ''
+        fields_row1 = ()
+        if WorkingProject.objects.count() == 0:
+            additionMessage = ' -- Please set working project first!'
+        return [
+            ('DB Information' + additionMessage, {
+                'fields': [
+                    fields_row1,
+                    ('dbInfo','recordSize',),
+                    ('memberGroupOption','subscriberNumber',),
+                    ('dbFactor','referencePlaceholderRatio',),
+                    ('placeholderRatio',),
+                ]}),
+        ]
+    def save_model(self, request, obj, form, change):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return DBConfiguration.objects.none()
+        obj.project=WorkingProject.objects.all()[0].project
+        super(DBConfigurationAdmin, self).save_model(request, obj, form, change)
 
 class SystemConfigurationAdmin(admin.ModelAdmin):
     list_display = ('name', 'cabinetNumberPerSystem', 'backupAppNodeNumberPerSystem',

@@ -3,9 +3,9 @@ from django.forms import fields,TextInput,Textarea
 
 from django.template import Template
 
-from .models import SelectP, Project, ProjectInformation, WorkingProject, TrafficInformation, \
+from .models import Project, ProjectInformation, WorkingProject, TrafficInformation, \
     FeatureConfiguration, DBConfiguration, CounterConfiguration, CallTypeCounterConfiguration, \
-    Address, Country, City, Province
+    Address, Country
 from Hardware.models import HardwareType, HardwareModel, CPUTuning, MemoryUsageTuning, \
     CPUList, MemoryList, VMType
 from Service.models import Release, CallType, FeatureName, DBInformation
@@ -23,33 +23,33 @@ from clever_selects.forms import ChainedChoicesForm, ChainedChoicesModelForm
 from django.contrib import messages
 
 
-class AddressForm(forms.Form):
+# class AddressForm(forms.Form):
     # country = AutoCompleteSelectField('countries', required=True, help_text="")
     # state = AutoCompleteSelectField('states',required=True, help_text="")
     #city = AutoCompleteSelectField('cities',required=True,help_text="")
 
-    province = forms.ModelChoiceField(Province.objects.all())
-    city = forms.ModelChoiceField(City.objects.none())
+#     province = forms.ModelChoiceField(Province.objects.all())
+#     city = forms.ModelChoiceField(City.objects.none())
 
-    def _raw_value(form, fieldname):
-        field = form.fields[fieldname]
-        prefix = form.add_prefix(fieldname)
-        return field.widget.value_from_datadict(form.data, form.files, prefix)
+#     def _raw_value(form, fieldname):
+#         field = form.fields[fieldname]
+#         prefix = form.add_prefix(fieldname)
+#         return field.widget.value_from_datadict(form.data, form.files, prefix)
 
-    def __init__(self, *args, **kwargs):
-        forms.Form.__init__(self, *args, **kwargs)
-        provinces = Province.objects.all()
-        if len(provinces)==1:
-            self.fields['province'].initial=provinces[0].pk
+#     def __init__(self, *args, **kwargs):
+#         forms.Form.__init__(self, *args, **kwargs)
+#         provinces = Province.objects.all()
+#         if len(provinces)==1:
+#             self.fields['province'].initial=provinces[0].pk
 
-        province_id=self.fields['province'].initial or self.initial.get('province') \
-                  or self._raw_value('province')
-        if province_id:
+#         province_id=self.fields['province'].initial or self.initial.get('province') \
+#                   or self._raw_value('province')
+#         if province_id:
             # parent is known. Now I can display the matching children.
-            cities = City.objects.filter(country__id=province_id)
-            self.fields['cities'].queryset=cities
-            if len(cities)==1:
-                self.fields['cities'].initial=cities[0].pk
+#             cities = City.objects.filter(country__id=province_id)
+#             self.fields['cities'].queryset=cities
+#             if len(cities)==1:
+#                 self.fields['cities'].initial=cities[0].pk
 
 
 
@@ -58,10 +58,10 @@ class AddressForm(forms.Form):
     #
     #     fields="__all__"
 
-class SelectForm(forms.ModelForm):
-    class Meta:
-        model = SelectP
-        fields = '__all__'
+# class SelectForm(forms.ModelForm):
+#     class Meta:
+#         model = SelectP
+#         fields = '__all__'
 
 
 class ProjectForm(forms.ModelForm):
@@ -549,6 +549,51 @@ class CallTypeCounterConfigurationForm(forms.ModelForm):
         fields = '__all__'
 
 
+class DBConfigurationForm(forms.ModelForm):
+    if WorkingProject.objects.count() > 0:
+        dbInfo = forms.ModelChoiceField(
+            DBInformation.objects.all().filter(
+                release=WorkingProject.objects.all()[0].project.release,
+                mode=WorkingProject.objects.all()[0].project.database_type
+            ),
+            empty_label=_(u'Select a DB Name'),
+            label='DB Name',
+        )
+    else:
+        feature = forms.ModelChoiceField(
+            DBInformation.objects.none(),
+            empty_label=_(u'Select a DB Name'),
+            label='DB Name',
+        )
+    dbFactor = forms.FloatField(
+        initial=0,
+        label='DB Factor',
+    )
+    recordSize = forms.IntegerField(
+        initial=0,
+        label='Record Size',
+    )
+    placeholderRatio = forms.FloatField(
+        initial=0,
+        label='Placeholder Ratio (%)',
+    )
+    referencePlaceholderRatio = forms.FloatField(
+        initial=0,
+        label='Reference for Placeholder Ratio',
+    )
+    MEMBER_GROUP_OPTION = (('Member', 'Member'), ('Group', 'Group'))
+    memberGroupOption = forms.ChoiceField(
+        initial='ember',
+        choices=MEMBER_GROUP_OPTION,
+        label='DB Option'
+    )
+    subscriberNumber = forms.IntegerField(
+        initial=0,
+        label='Subscriber Number',
+    )
+    class Meta:
+        model = DBConfiguration
+        fields = '__all__'
 class LoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)

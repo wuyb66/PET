@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
-from smart_selects.db_fields import ChainedForeignKey, ChainedManyToManyField, ChainedManyToManyField2
+# from smart_selects.db_fields import ChainedForeignKey, ChainedManyToManyField, ChainedManyToManyField2
 
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -32,29 +32,29 @@ SERVICE_TYPES = (
 )
 
 
-class Province(models.Model):
-    name = models.CharField(max_length=30)
+# class Province(models.Model):
+#     name = models.CharField(max_length=30)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-class City(models.Model):
-    name = models.CharField(max_length=40)
-    province = models.ForeignKey(Province)
+# class City(models.Model):
+#     name = models.CharField(max_length=40)
+#     province = models.ForeignKey(Province)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-class SelectP(models.Model):
-    province = models.ForeignKey(Province)
-    city = ChainedForeignKey(
-        'City',
-        chained_field="province",
-        chained_model_field="province",
-        show_all=False,
-        auto_choose=True,
-        help_text='Location aaa',
-    )
+# class SelectP(models.Model):
+#     province = models.ForeignKey(Province)
+#     city = ChainedForeignKey(
+#         'City',
+#         chained_field="province",
+#         chained_model_field="province",
+#         show_all=False,
+#         auto_choose=True,
+#         help_text='Location aaa',
+#     )
     # city = models.ForeignKey(City)
 
 class Country(models.Model):
@@ -341,13 +341,42 @@ class FeatureConfiguration(models.Model):
         unique_together = (("project", "feature"),)
 
 class DBConfiguration(models.Model):
-    MEMBER_GROUP_OPTION = (('member', 'Member'), ('group', 'Group'))
+    MEMBER_GROUP_OPTION = (('Member', 'Member'), ('Group', 'Group'))
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    dbInfo = models.ForeignKey(DBInformation, on_delete=models.CASCADE)
+    dbInfo = models.ForeignKey(DBInformation, on_delete=models.CASCADE, verbose_name='DB Name')
 
     dbFactor = models.FloatField(default=0, verbose_name='DB Factor')
     placeholderRatio = models.FloatField(default=0, verbose_name='Placeholder Ratio (%)')
-    memberGroupOption = models.CharField(max_length=10, choices=MEMBER_GROUP_OPTION, default='member')
+    memberGroupOption = models.CharField(max_length=10, choices=MEMBER_GROUP_OPTION,
+                                         default='member', verbose_name='DB Option')
+    @property
+    def recordSize(self):
+        return self.dbInfo.recordSize
+    @property
+    def subscriberNumber(self):
+        if WorkingProject.objects.all().count() > 0:
+            return ProjectInformation.objects.all().filter(
+                project=WorkingProject.objects.all()[0])[0].activeSubscriber
+        else:
+            return 0
+    @property
+    def recordNumber(self):
+        return self.subscriberNumber * self.dbFactor
+    @property
+    def cacheSize(self):
+        dbOverhead = 1
+        if self.dbInfo.name == 'RTDB':
+            dbOverhead = self.dbInfo.rtdbOverhead
+        return self.recordSize * self.recordNumber * dbOverhead
+    @property
+    def todoLogSize(self):
+        return 0
+    @property
+    def mateLogSize(self):
+        return 0
+    @property
+    def referencePlaceholderRatio(self):
+        return 0
 
 
     def __str__(self):
@@ -404,6 +433,14 @@ class CounterConfiguration(models.Model):
         default=0,
         verbose_name='Applied UBD Number',
     )
+    groupBundleNumber = models.FloatField(
+        default=0,
+        verbose_name='Number of Group Bundle',
+    )
+    groupBucketNumber = models.FloatField(
+        default=0,
+        verbose_name='Group Bucket Number',
+    )
 
     generateMultipleAMAForCounter = models.BooleanField(
         default=False,
@@ -441,6 +478,7 @@ class CounterConfiguration(models.Model):
 
 
 class CallTypeCounterConfiguration(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     callType = models.ForeignKey(CallType, on_delete=models.CASCADE)
 
     averageBundleNumberPerSubscriber = models.FloatField(
@@ -466,28 +504,6 @@ class CallTypeCounterConfiguration(models.Model):
     appliedUBDNumber = models.FloatField(
         default=0,
         verbose_name='Applied UBD Number',
-    )
-
-    groupBundleNumber = models.FloatField(
-        default=0,
-        verbose_name='Number of Group Bundle',
-    )
-    groupBucketNumber = models.FloatField(
-        default=0,
-        verbose_name='Group Bucket Number',
-    )
-
-    generateMultipleAMAForCounter = models.BooleanField(
-        default=False,
-        verbose_name='Generate Multiple AMA For Counter',
-    )
-    turnOnBasicCriteriaCheck = models.BooleanField(
-        default=False,
-        verbose_name='Enable Basic Criteria Check',
-    )
-    configureForCallType = models.BooleanField(
-        default=False,
-        verbose_name='Configure Counter For Call Types',
     )
 
     @property
@@ -521,14 +537,32 @@ class CallTypeCounterConfiguration(models.Model):
         pass
         #return getCounterCPUImpact() + getMultipleAMANumber() + getMultipleAMAImpact()
 
+    class Meta:
+        verbose_name = 'Counter Configuration for Call Type'
+        verbose_name_plural = 'Counter Configuration for Call Type'
 class SystemConfiguration(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    cabinetNumberPerSystem = models.IntegerField(default=1)
-    backupAppNodeNumberPerSystem = models.IntegerField(default=0)
-    spareAppNodeNumberPerSystem = models.IntegerField(default=0)
-    backupDBNodeNumberPerSystem = models.IntegerField(default=0)
-    spareDBNodePairNumberPerSystem = models.IntegerField(default=0)
+    cabinetNumberPerSystem = models.IntegerField(
+        default=1,
+        verbose_name='Number of Cabinet Per System',
+    )
+    backupAppNodeNumberPerSystem = models.IntegerField(
+        default=0,
+        verbose_name='Number of Backup App Node Per System',
+    )
+    spareAppNodeNumberPerSystem = models.IntegerField(
+        default=0,
+        verbose_name='Number of Spare App Node Per System',
+    )
+    backupDBNodeNumberPerSystem = models.IntegerField(
+        default=0,
+        verbose_name='Number of Backup DB Node Per System',
+    )
+    spareDBNodePairNumberPerSystem = models.IntegerField(
+        default=0,
+        verbose_name='Number of Spare DB Node Pair Per System'
+    )
 
     def __str__(self):
         return self.project.__str__()

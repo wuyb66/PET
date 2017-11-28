@@ -20,20 +20,21 @@ from Project import views as project_views
 from Project.views import ProjectList, AjaxHardwareModels
 
 # Uncomment the next two lines to enable the admin:
-import xadmin
-xadmin.autodiscover()
+# import xadmin
+# xadmin.autodiscover()
 
 # version模块自动注册需要版本控制的 Model
-from xadmin.plugins import xversion
-xversion.register_models()
+# from xadmin.plugins import xversion
+# xversion.register_models()
 
 urlpatterns = [
-    url(r'^$', project_views.index, name='home'),
+    # url(r'^$', project_views.index, name='home'),
     # url(r'projects', ProjectList.as_view()),
     # url(r'^add/((?:-|\d)+)/((?:-|\d)+)/$', project_views.add, name='add'),
     #url(r'xadmin/', xadmin.site.urls, name='xadmin'),
-    url(r'^index/$',project_views.index, name='select_index') ,
-    url(r'^getdata/$', project_views.getdata, name='getdata'),
+    # url(r'^index/$',project_views.index, name='select_index') ,
+    # url(r'^getdata/$', project_views.getdata, name='getdata'),
+    url(r'^getrecordsize/$', project_views.getRecordSize, name='getrecordsize'),
     url(r'^province_to_city/$', project_views.province_to_city, name='province_to_city'),
 
     url(r'^ajax/chained-hardware-models/$', AjaxHardwareModels.as_view(), name='ajax_hardware_models'),

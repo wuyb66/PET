@@ -56,12 +56,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'xadmin',
+    # 'xadmin',
     'crispy_forms',
-    'reversion',
+    # 'reversion',
 
-    'ajax_select',
-    'ajax_select_cascade',
+    # 'ajax_select',
+    # 'ajax_select_cascade',
 
     'smart_selects',
     'clever_selects',

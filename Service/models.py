@@ -82,20 +82,42 @@ class DBName(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
 class DBInformation(models.Model):
     db = models.ForeignKey(DBName, on_delete=models.CASCADE)
     mode = models.ForeignKey(DBMode, on_delete=models.CASCADE)
     release = models.ForeignKey(Release, on_delete=models.CASCADE)
 
-    recordSize = models.IntegerField(default=0)
-    todoLogSize = models.IntegerField(default=0)
-    mateLogSize  = models.IntegerField(default=0)
-    updateTimes = models.FloatField(default=0)      # Update times for todo log and mate log
+    recordSize = models.IntegerField(
+        default=0,
+        verbose_name='Record Size',
+    )
+    rtdbOverhead = models.FloatField(
+        default=0,
+        verbose_name='RTDB Overhead',
+    )     # 1.3 or 7.9
+    todoLogSize = models.IntegerField(
+        default=0,
+        verbose_name='Todo Log Size',
+    )
+    mateLogSize  = models.IntegerField(
+        default=0,
+        verbose_name='Mate Log Size',
+    )
+    updateTimes = models.FloatField(
+        default=0,
+        verbose_name='Update Times',
+    )     # Update times for todo log and mate log
 
-    def __str__(self):
+    @property
+    def name(self):
         return self.db.name + '_' +  self.release.name + '_' + self.mode.name
 
-    name = property(__str__)
+    def __str__(self):
+        return self.db.name
+    class Meta:
+        ordering = ['db']
 
 class FeatureName(models.Model):
     name = models.CharField(max_length=64)
