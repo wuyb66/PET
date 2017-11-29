@@ -524,6 +524,11 @@ class CallTypeCounterConfiguration(models.Model):
     objects = CallTypeCounterConfigurationManager()
 
     @property
+    def totalCounterNumber(self):
+        return self.nonAppliedBucketNumber + self.nonAppliedUBDNumber + \
+               self.appliedBucketNumber + self.appliedUBDNumber
+
+    @property
     def totalBundleNumber(self):
         return self.averageBundleNumberPerSubscriber + self.average24hBundleNumberPerSubscriber
 
@@ -537,7 +542,7 @@ class CallTypeCounterConfiguration(models.Model):
         verbose_name_plural = 'Counter Configuration For Call Type'
 
     def __str__(self):
-        return super.__str__() + '_' + self.callType.name
+        return self.callType.name
 
     name = property(__str__)
 

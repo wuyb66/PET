@@ -445,8 +445,10 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
         if WorkingProject.objects.count() == 0:
             return ['averageBundleNumberPerSubscriber', 'average24hBundleNumberPerSubscriber',
                     'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
-                    'appliedUBDNumber',
+                    'appliedUBDNumber','callType', 'totalCounterNumber',
                     ]
+        # else:
+        #     return ['callType', 'totalCounterNumber']
         return self.readonly_fields
 
     def  get_queryset(self, request):
@@ -481,7 +483,7 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
                 project=WorkingProject.objects.all()[0].project,
                 callType = trafficInformation.callType,
             )
-            if callTypeCounterConfigurationList.count() > 0:
+            if callTypeCounterConfigurationList.count() == 0:
                 callTypeCounterConfiguration = CallTypeCounterConfiguration.objects.create_callTypeCounterConfiguration(
                     project=WorkingProject.objects.all()[0].project,
                     callType = trafficInformation.callType,
@@ -527,6 +529,11 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
             return CounterConfiguration.objects.none()
         obj.project=WorkingProject.objects.all()[0].project
         super(CallTypeCounterConfigurationAdmin, self).save_model(request, obj, form, change)
+
+    class Media:
+        js = ('/static/jquery-2.1.1.min.js',
+              '/static/js/calltype_counter_configuration.js',
+              )
 
 
 class CounterConfigurationAdmin(admin.ModelAdmin):

@@ -112,16 +112,28 @@ class ProjectInformationForm(forms.ModelForm):
             initial=VMType.objects.all().filter(type='CBIS')[0].pk
         )
 
-        cpuNumber = forms.ModelChoiceField(
-            CPUList.objects.all().filter(
-                hardwareModel=WorkingProject.objects.all()[0].project.hardwareModel),
-            empty_label=_(u'Select a CPU Number'),
-            label='CPU Number',
-            initial=CPUList.objects.all().filter(
+        if CPUList.objects.all().filter(
                 hardwareModel=WorkingProject.objects.all()[0].project.hardwareModel,
                 cpuNumber=WorkingProject.objects.all()[0].project.hardwareModel.defaultCPUNumber
-            )[0].pk,
-        )
+        ).count() > 0:
+            cpuNumber = forms.ModelChoiceField(
+                CPUList.objects.all().filter(
+                    hardwareModel=WorkingProject.objects.all()[0].project.hardwareModel),
+                empty_label=_(u'Select a CPU Number'),
+                label='CPU Number',
+                initial=CPUList.objects.all().filter(
+                    hardwareModel=WorkingProject.objects.all()[0].project.hardwareModel,
+                    cpuNumber=WorkingProject.objects.all()[0].project.hardwareModel.defaultCPUNumber
+                )[0].pk,
+            )
+        else:
+            cpuNumber = forms.ModelChoiceField(
+                CPUList.objects.all().filter(
+                    hardwareModel=WorkingProject.objects.all()[0].project.hardwareModel),
+                empty_label=_(u'Select a CPU Number'),
+                label='CPU Number',
+                initial=CPUList.objects.none(),
+            )
 
         memory = forms.ModelChoiceField(
             MemoryList.objects.all().filter(
@@ -451,6 +463,7 @@ class CounterConfigurationForm(forms.ModelForm):
     totalCounterNumber = forms.FloatField(
         label='Total Counter Number',
         initial=0,
+        disabled=True,
         # widget=forms.NumberInput(attrs={'style': 'width:100px'}),
     )
 
@@ -510,8 +523,10 @@ class CounterConfigurationForm(forms.ModelForm):
 
 
 class CallTypeCounterConfigurationForm(forms.ModelForm):
-    callType = forms.ChoiceField(
+    callType = forms.ModelChoiceField(
+        CallType.objects.all(),
         label='Call Type',
+        disabled=True,
         # widget={forms.Input}
     )
     averageBundleNumberPerSubscriber = forms.FloatField(
@@ -544,6 +559,13 @@ class CallTypeCounterConfigurationForm(forms.ModelForm):
         initial=0,
         widget=forms.NumberInput(attrs={'Style': 'width:100px'}),
     )
+    totalCounterNumber = forms.FloatField(
+        label='Total Counter Number',
+        initial=0,
+        disabled=True,
+        # widget=forms.NumberInput(attrs={'style': 'width:100px'}),
+    )
+
     class Meta:
         model = CallTypeCounterConfiguration
         fields = '__all__'
@@ -560,7 +582,7 @@ class DBConfigurationForm(forms.ModelForm):
             label='DB Name',
         )
     else:
-        feature = forms.ModelChoiceField(
+        dbInfo = forms.ModelChoiceField(
             DBInformation.objects.none(),
             empty_label=_(u'Select a DB Name'),
             label='DB Name',
@@ -572,6 +594,7 @@ class DBConfigurationForm(forms.ModelForm):
     recordSize = forms.IntegerField(
         initial=0,
         label='Record Size',
+        disabled=True,
     )
     placeholderRatio = forms.FloatField(
         initial=0,
@@ -580,6 +603,7 @@ class DBConfigurationForm(forms.ModelForm):
     referencePlaceholderRatio = forms.FloatField(
         initial=0,
         label='Reference for Placeholder Ratio',
+        disabled=True,
     )
     MEMBER_GROUP_OPTION = (('Member', 'Member'), ('Group', 'Group'))
     memberGroupOption = forms.ChoiceField(
@@ -590,6 +614,7 @@ class DBConfigurationForm(forms.ModelForm):
     subscriberNumber = forms.IntegerField(
         initial=0,
         label='Subscriber Number',
+        disabled=True,
     )
     class Meta:
         model = DBConfiguration
