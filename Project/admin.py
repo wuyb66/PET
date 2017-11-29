@@ -429,7 +429,7 @@ class DBConfigurationAdmin(admin.ModelAdmin):
 
 class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
     model = CallTypeCounterConfiguration
-    # form=CallTypeCounterConfigurationForm
+    form=CallTypeCounterConfigurationForm
     list_display = ('callType', 'averageBundleNumberPerSubscriber','average24hBundleNumberPerSubscriber',
               'nonAppliedBucketNumber', 'nonAppliedUBDNumber', 'appliedBucketNumber',
               'appliedUBDNumber',)
