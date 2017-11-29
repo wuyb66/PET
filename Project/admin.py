@@ -9,8 +9,8 @@ from .forms import ProjectForm, ProjectForm1, ProjectInformationForm, \
     TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, CallTypeCounterConfigurationForm, \
     DBConfigurationForm
 from django.contrib import messages
-from ajax_select import make_ajax_form
-from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline, AjaxSelectAdminStackedInline
+# from ajax_select import make_ajax_form
+# from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline, AjaxSelectAdminStackedInline
 
 
 class ProjectInline(admin.TabularInline):
@@ -454,29 +454,34 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
             self.message_user(request, 'Please set working project first!', level=messages.ERROR)
             return CallTypeCounterConfiguration.objects.none()
 
-        callTypeCounterConfigurationList = CallTypeCounterConfiguration.objects.all().filter(
+
+        trafficInformationList = TrafficInformation.objects.all().filter(
+            project=WorkingProject.objects.all()[0].project,
+        )
+        if trafficInformationList.count() == 0:
+            self.message_user(request, 'Please configure traffic first!', level=messages.ERROR)
+            return CallTypeCounterConfiguration.objects.none()
+
+        counterConfigurationList = CounterConfiguration.objects.all().filter(
             project=WorkingProject.objects.all()[0].project,
         )
 
-        if callTypeCounterConfigurationList.count() == 0:
-            trafficInformationList = TrafficInformation.objects.all().filter(
+        if counterConfigurationList.count() == 0:
+            self.message_user(request, 'Please configure counter first!', level=messages.ERROR)
+            return CallTypeCounterConfiguration.objects.none()
+
+        counterConfiguration = counterConfigurationList[0]
+
+        if not counterConfiguration.configureForCallType:
+            self.message_user(request, 'Please check "Configure Counter For Call Types" first!', level=messages.ERROR)
+            return CallTypeCounterConfiguration.objects.none()
+
+        for trafficInformation in trafficInformationList:
+            callTypeCounterConfigurationList = CallTypeCounterConfiguration.objects.all().filter(
                 project=WorkingProject.objects.all()[0].project,
+                callType = trafficInformation.callType,
             )
-            if trafficInformationList.count() == 0:
-                self.message_user(request, 'Please configure traffic first!', level=messages.ERROR)
-                return CallTypeCounterConfiguration.objects.none()
-
-            counterConfigurationList = CounterConfiguration.objects.all().filter(
-                project=WorkingProject.objects.all()[0].project,
-            )
-
-            if counterConfigurationList.count() == 0:
-                self.message_user(request, 'Please configure counter first!', level=messages.ERROR)
-                return CallTypeCounterConfiguration.objects.none()
-
-            counterConfiguration = counterConfigurationList[0]
-
-            for trafficInformation in trafficInformationList:
+            if callTypeCounterConfigurationList.count() > 0:
                 callTypeCounterConfiguration = CallTypeCounterConfiguration.objects.create_callTypeCounterConfiguration(
                     project=WorkingProject.objects.all()[0].project,
                     callType = trafficInformation.callType,

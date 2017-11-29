@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
         ('Project', '0020_auto_20170929_1718'),
     ]
 
-    operations = [
-        migrations.AlterField(
-            model_name='project',
-            name='hardwareType',
-            # field=smart_selects.db_fields.ChainedManyToManyField2(chained_field='cpu', chained_model_field='cpus', horizontal=True, to='Hardware.HardwareType'),
-            field=smart_selects.db_fields.ChainedManyToManyField2(chained_field='cpu', chained_model_field='cpus', to='Hardware.HardwareType'),
-        ),
-    ]
+    # operations = [
+    #     migrations.AlterField(
+    #         model_name='project',
+    #         name='hardwareType',
+    #         # field=smart_selects.db_fields.ChainedManyToManyField2(chained_field='cpu', chained_model_field='cpus', horizontal=True, to='Hardware.HardwareType'),
+    #         field=smart_selects.db_fields.ChainedManyToManyField2(chained_field='cpu', chained_model_field='cpus', to='Hardware.HardwareType'),
+    #     ),
+    # ]
