@@ -453,6 +453,42 @@ class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
         if WorkingProject.objects.count() == 0:
             self.message_user(request, 'Please set working project first!', level=messages.ERROR)
             return CallTypeCounterConfiguration.objects.none()
+
+        callTypeCounterConfigurationList = CallTypeCounterConfiguration.objects.all().filter(
+            project=WorkingProject.objects.all()[0].project,
+        )
+
+        if callTypeCounterConfigurationList.count() == 0:
+            trafficInformationList = TrafficInformation.objects.all().filter(
+                project=WorkingProject.objects.all()[0].project,
+            )
+            if trafficInformationList.count() == 0:
+                self.message_user(request, 'Please configure traffic first!', level=messages.ERROR)
+                return CallTypeCounterConfiguration.objects.none()
+
+            counterConfigurationList = CounterConfiguration.objects.all().filter(
+                project=WorkingProject.objects.all()[0].project,
+            )
+
+            if counterConfigurationList.count() == 0:
+                self.message_user(request, 'Please configure counter first!', level=messages.ERROR)
+                return CallTypeCounterConfiguration.objects.none()
+
+            counterConfiguration = counterConfigurationList[0]
+
+            for trafficInformation in trafficInformationList:
+                callTypeCounterConfiguration = CallTypeCounterConfiguration.objects.create_callTypeCounterConfiguration(
+                    project=WorkingProject.objects.all()[0].project,
+                    callType = trafficInformation.callType,
+                    average24hBundleNumberPerSubscriber=counterConfiguration.average24hBundleNumberPerSubscriber,
+                    averageBundleNumberPerSubscriber = counterConfiguration.averageBundleNumberPerSubscriber,
+                    nonAppliedUBDNumber = counterConfiguration.nonAppliedUBDNumber,
+                    nonAppliedBucketNumber = counterConfiguration.nonAppliedBucketNumber,
+                    appliedUBDNumber = counterConfiguration.appliedUBDNumber,
+                    appliedBucketNumber = counterConfiguration.appliedBucketNumber,
+                )
+
+
         return super(CallTypeCounterConfigurationAdmin,self).get_queryset(request). \
             filter(project=WorkingProject.objects.all()[0].project)
 

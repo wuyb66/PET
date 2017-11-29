@@ -476,6 +476,21 @@ class CounterConfiguration(models.Model):
     def getTotalCounter(self):
         return self.nonAppliedBucketNumber + self.nonAppliedUBDNumber + self.appliedBucketNumber + self.appliedUBDNumber
 
+class CallTypeCounterConfigurationManager(models.Manager):
+    def create_callTypeCounterConfiguration(
+            self, project, callType, averageBundleNumberPerSubscriber,average24hBundleNumberPerSubscriber,
+            nonAppliedBucketNumber, nonAppliedUBDNumber, appliedBucketNumber, appliedUBDNumber):
+        callTypeCounterConfiguration = self.create(
+            project = project,
+            callType = callType,
+            average24hBundleNumberPerSubscriber=average24hBundleNumberPerSubscriber,
+            averageBundleNumberPerSubscriber = averageBundleNumberPerSubscriber,
+            nonAppliedUBDNumber = nonAppliedUBDNumber,
+            nonAppliedBucketNumber = nonAppliedBucketNumber,
+            appliedUBDNumber = appliedUBDNumber,
+            appliedBucketNumber = appliedBucketNumber,
+        )
+        return callTypeCounterConfiguration
 
 class CallTypeCounterConfiguration(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -505,6 +520,8 @@ class CallTypeCounterConfiguration(models.Model):
         default=0,
         verbose_name='Applied UBD Number',
     )
+
+    objects = CallTypeCounterConfigurationManager()
 
     @property
     def totalBundleNumber(self):
