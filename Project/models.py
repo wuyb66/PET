@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from Service.models import Release, CallType, FeatureName, DBInformation
+from Service.models import Release, CallType, FeatureName, DBInformation, CallCost
 from Hardware.models import CPUTuning, MemoryUsageTuning, HardwareModel, VMType, HardwareType, CPU, CPUList, MemoryList
 from Common.models import DBMode
 from django.utils.encoding import python_2_unicode_compatible
@@ -302,6 +302,51 @@ class TrafficInformation(models.Model):
 
     def __str__(self):
         return self.project.name + '_' + self.callType.name
+
+    def getCallCost(self):
+        callCostOrigList = CallCost.objects.all().filter(
+            callType=self.callType,
+            release=self.project.release,
+        )
+
+        if callCostOrigList.count() > 0:
+            callCostList = callCostOrigList.filter(
+                hardwareModel=self.project.hardwareModel,
+                dbMode=self.project.database_type,
+            )
+
+            if callCostList.count() > 0:
+                return callCostList[0].callCost * callCostList[0].hardwareModel.cpu.singleThreadCapacity
+
+            callCostList = callCostOrigList.filter(
+                hardwareModel=self.project.hardwareModel,
+            )
+            if callCostList.count() > 0:
+                return callCostList[0].callCost * callCostList[0].hardwareModel.cpu.singleThreadCapacity
+
+            callCostList = callCostOrigList.filter(
+                dbMode=self.project.database_type,
+            )
+            callCost = 0
+            callCostSet = 0
+            if callCostList.count() > 0:
+                for callCostObject in callCostList:
+                    if callCostObject.hardwareModel.hardwareType == self.project.hardwareModel.hardwareType:
+                        callCost = callCostObject.callCost * callCostObject.hardwareModel.cpu.singleThreadCapacity
+                        callCostSet = 3
+                    elif callCostObject.hardwareModel.cpu == self.project.hardwareModel.cpu:
+                        if (callCost == 0) or (callCostSet < 2):
+                            callCostSet = 2
+                            callCost = callCostObject.callCost * callCostObject.hardwareModel.cpu.singleThreadCapacity
+                    else:
+                        if callCost == 0:
+                            callCostSet = 1
+                            callCost = callCostObject.callCost * callCostObject.hardwareModel.cpu.singleThreadCapacity
+
+                return callCost
+        else:
+            raise ValidationError('Call Cost for Call Type: %s of Release %s not configured!'
+                                  %(self.callType, self.project.release))
 
     name = property(__str__)
 
