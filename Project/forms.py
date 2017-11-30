@@ -4,7 +4,8 @@ from django.forms import fields,TextInput,Textarea
 from django.template import Template
 
 from .models import Project, ProjectInformation, WorkingProject, TrafficInformation, \
-    FeatureConfiguration, DBConfiguration, CounterConfiguration, CallTypeCounterConfiguration, \
+    FeatureConfiguration, DBConfiguration, CounterConfiguration, \
+    CallTypeCounterConfiguration, SystemConfiguration,\
     Address, Country
 from Hardware.models import HardwareType, HardwareModel, CPUTuning, MemoryUsageTuning, \
     CPUList, MemoryList, VMType
@@ -619,6 +620,36 @@ class DBConfigurationForm(forms.ModelForm):
     class Meta:
         model = DBConfiguration
         fields = '__all__'
+
+
+class SystemConfigurationForm(forms.ModelForm):
+    cabinetNumberPerSystem = forms.IntegerField(
+        initial=1,
+        label='Number of Cabinet Per System',
+        disabled=True,
+    )
+    backupAppNodeNumberPerSystem = forms.IntegerField(
+        initial=0,
+        label='Number of Backup App Node Per System',
+    )
+    spareAppNodeNumberPerSystem = forms.IntegerField(
+        initial=0,
+        label='Number of Spare App Node Per System',
+    )
+    backupDBNodeNumberPerSystem = forms.IntegerField(
+        initial=0,
+        label='Number of Backup DB Node Per System',
+    )
+    spareDBNodePairNumberPerSystem = forms.IntegerField(
+        initial=0,
+        label='Number of Spare DB Node Pair Per System'
+    )
+
+    class Meta:
+        model = SystemConfiguration
+        fields = '__all__'
+
+
 class LoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)

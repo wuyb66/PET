@@ -6,8 +6,8 @@ from .models import Project, ProjectInformation, TrafficInformation, FeatureConf
     # Province, City, SelectP
 from Hardware.models import HardwareModel, HardwareType
 from .forms import ProjectForm, ProjectForm1, ProjectInformationForm, \
-    TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, CallTypeCounterConfigurationForm, \
-    DBConfigurationForm
+    TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, \
+    CallTypeCounterConfigurationForm, DBConfigurationForm, SystemConfigurationForm
 from django.contrib import messages
 # from ajax_select import make_ajax_form
 # from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline, AjaxSelectAdminStackedInline
@@ -416,15 +416,15 @@ class FeatureConfigurationAdmin(admin.ModelAdmin):
         obj.project=WorkingProject.objects.all()[0].project
         super(FeatureConfigurationAdmin, self).save_model(request, obj, form, change)
 
-class DBConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dbFactor', 'placeholderRatio', 'memberGroupOption')
-
-    list_filter = ('project', 'dbInfo__db', 'dbInfo__mode', 'dbInfo__release', 'memberGroupOption')
-
-    search_fields = ('dbInfo__db__name', 'dbInfo__mode__name', 'project__user__username', 'project__release__name',
-                     'project__hardwareModel__hardwareType__name',
-                     'project__hardwareModel__cpu__name', 'project__customer',
-                     'project__vmType__type', 'project__database_type__name')
+# class DBConfigurationAdmin(admin.ModelAdmin):
+#     list_display = ('name', 'dbFactor', 'placeholderRatio', 'memberGroupOption')
+#
+#     list_filter = ('project', 'dbInfo__db', 'dbInfo__mode', 'dbInfo__release', 'memberGroupOption')
+#
+#     search_fields = ('dbInfo__db__name', 'dbInfo__mode__name', 'project__user__username', 'project__release__name',
+#                      'project__hardwareModel__hardwareType__name',
+#                      'project__hardwareModel__cpu__name', 'project__customer',
+#                      'project__vmType__type', 'project__database_type__name')
 
 
 class CallTypeCounterConfigurationAdmin(admin.ModelAdmin):
@@ -672,15 +672,62 @@ class DBConfigurationAdmin(admin.ModelAdmin):
         super(DBConfigurationAdmin, self).save_model(request, obj, form, change)
 
 class SystemConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'cabinetNumberPerSystem', 'backupAppNodeNumberPerSystem',
-                    'spareAppNodeNumberPerSystem', 'backupDBNodeNumberPerSystem')
+    list_display = ('cabinetNumberPerSystem', 'backupAppNodeNumberPerSystem', 'spareAppNodeNumberPerSystem',
+                    'backupDBNodeNumberPerSystem', 'spareDBNodePairNumberPerSystem')
 
-    list_filter = ('project',)
+    form = SystemConfigurationForm
 
-    search_fields = ('project__user__username', 'project__release__name',
-                     'project__hardwareModel__hardwareType__name',
-                     'project__hardwareModel__cpu__name', 'project__customer',
-                     'project__vmType__type', 'project__database_type__name')
+    # list_filter = ('project',)
+    #
+    # search_fields = ('project__user__username', 'project__release__name',
+    #                  'project__hardwareModel__hardwareType__name',
+    #                  'project__hardwareModel__cpu__name', 'project__customer',
+    #                  'project__vmType__type', 'project__database_type__name')
+    def has_add_permission(self, request):
+        if CounterConfiguration.objects.all().filter(project=WorkingProject.objects.all()[0].project).count() > 0:
+            return False
+        else:
+            return True
+        
+    def get_readonly_fields(self, request, obj=None):
+        if WorkingProject.objects.count() == 0:
+            return ['cabinetNumberPerSystem', 'backupAppNodeNumberPerSystem', 'spareAppNodeNumberPerSystem',
+                     'backupDBNodeNumberPerSystem', 'spareDBNodePairNumberPerSystem'
+                    ]
+        return self.readonly_fields
+
+    class Media:
+        js = ('/static/jquery-2.1.1.min.js',
+              # '/static/js/db_configuration.js',
+              )
+    def  get_queryset(self, request):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return SystemConfiguration.objects.none()
+        return super(SystemConfigurationAdmin,self).get_queryset(request). \
+            filter(
+            project=WorkingProject.objects.all()[0].project,
+        )
+    def get_fieldsets(self, request, obj=None):
+        additionMessage = ''
+        fields_row1 = ()
+        if WorkingProject.objects.count() == 0:
+            additionMessage = ' -- Please set working project first!'
+        return [
+            ('DB Information' + additionMessage, {
+                'fields': [
+                    fields_row1,
+                    ('cabinetNumberPerSystem',),
+                    ('backupAppNodeNumberPerSystem', 'spareAppNodeNumberPerSystem',),
+                    ('backupDBNodeNumberPerSystem', 'spareDBNodePairNumberPerSystem',),
+                ]}),
+        ]
+    def save_model(self, request, obj, form, change):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return SystemConfiguration.objects.none()
+        obj.project=WorkingProject.objects.all()[0].project
+        super(SystemConfigurationAdmin, self).save_model(request, obj, form, change)
 
 class SelectPAdmin(admin.ModelAdmin):
     class Media:
