@@ -13,9 +13,10 @@ from django.core import serializers, urlresolvers
 from Service.models import CurrentRelease
 
 from . import forms
-from .models import Project, TrafficInformation, WorkingProject, FeatureConfiguration
+from .models import Project, TrafficInformation, WorkingProject, FeatureConfiguration, \
+    ProjectInformation, ApplicationConfiguration
 from Hardware.models import HardwareModel, HardwareType
-from Service.models import DBInformation, FeatureDBImpact, FeatureName
+from Service.models import DBInformation, FeatureDBImpact, FeatureName, ApplicationName
 from .forms import ProjectForm1
 
 import json
@@ -25,49 +26,49 @@ from clever_selects.views import ChainedSelectChoicesView
 
 # Create your views here.
 
-def province_to_city(request):
-    province = request.GET.get('province')
-    ret = []
-    if province:
-        for city in City.objects.filter(parent__id=province):
-            ret.append(dict(id=city.id, value=str(city)))
-    if len(ret) != 1:
-        ret.insert(0, dict(id='', value='---'))
-    return HttpResponse(json.dumps(ret), content_type='application/json')
-
-def Map(request):
-    return render_to_response("Project/project_list2.html")
-    #return HttpResponse("Hello!")
-
-Place_dict = {
-    "GuangDong":{
-        "GuangZhou":["PanYu","HuangPu","TianHe"],
-        "QingYuan":["QingCheng","YingDe","LianShan"],
-        "FoShan":["NanHai","ShunDe","SanShui"]
-    },
-    "ShanDong":{
-        "JiNan":["LiXia","ShiZhong","TianQiao"],
-        "QingDao":["ShiNan","HuangDao","JiaoZhou"]
-    },
-    "HuNan":{
-        "ChangSha":["KaiFu","YuHua","WangCheng"],
-        "ChenZhou":["BeiHu","SuXian","YongXian"]
-    }
-}
-
-def Return_City_Data(request):
-    province = request.GET['Province']
-    print(province)
-    City_list = []
-    for city in Place_dict[province]:
-        City_list.append(city)
-    return HttpResponse(json.dumps(City_list))
-
-def Return_Country_Data(request):
-    province,city = request.GET['Province'],request.GET['City']
-    print(province,city)
-    Country_list = Place_dict[province][city]
-    return HttpResponse(json.dumps(Country_list))
+# def province_to_city(request):
+#     province = request.GET.get('province')
+#     ret = []
+#     if province:
+#         for city in City.objects.filter(parent__id=province):
+#             ret.append(dict(id=city.id, value=str(city)))
+#     if len(ret) != 1:
+#         ret.insert(0, dict(id='', value='---'))
+#     return HttpResponse(json.dumps(ret), content_type='application/json')
+#
+# def Map(request):
+#     return render_to_response("Project/project_list2.html")
+#     #return HttpResponse("Hello!")
+#
+# Place_dict = {
+#     "GuangDong":{
+#         "GuangZhou":["PanYu","HuangPu","TianHe"],
+#         "QingYuan":["QingCheng","YingDe","LianShan"],
+#         "FoShan":["NanHai","ShunDe","SanShui"]
+#     },
+#     "ShanDong":{
+#         "JiNan":["LiXia","ShiZhong","TianQiao"],
+#         "QingDao":["ShiNan","HuangDao","JiaoZhou"]
+#     },
+#     "HuNan":{
+#         "ChangSha":["KaiFu","YuHua","WangCheng"],
+#         "ChenZhou":["BeiHu","SuXian","YongXian"]
+#     }
+# }
+#
+# def Return_City_Data(request):
+#     province = request.GET['Province']
+#     print(province)
+#     City_list = []
+#     for city in Place_dict[province]:
+#         City_list.append(city)
+#     return HttpResponse(json.dumps(City_list))
+#
+# def Return_Country_Data(request):
+#     province,city = request.GET['Province'],request.GET['City']
+#     print(province,city)
+#     Country_list = Place_dict[province][city]
+#     return HttpResponse(json.dumps(Country_list))
 
 # def index(request):
 #     if request.method == 'POST':
@@ -173,6 +174,40 @@ def getSubscriberNumber(memberGroupOption):
             return activeSubscriber * penetrationOLH
     else:
         return 0
+
+
+def getOtherApplicationInformation(request):
+    activeSubscriber = 0
+    inactiveSubscriber = 0
+    trafficTPS = 0
+    application_id = request.GET['pk']
+    applicationName = get_object_or_404(ApplicationName, pk=application_id)
+
+    if (applicationName.name == 'DRouter'):
+        if WorkingProject.objects.all().count() > 0:
+            projectInformation = ProjectInformation.objects.all().filter(
+                project=WorkingProject.objects.all()[0].project,
+            )
+            if projectInformation.count() > 0:
+                activeSubscriber = projectInformation[0].activeSubscriber
+                inactiveSubscriber = projectInformation[0].inactiveSubscriber
+
+            trafficInformationList = TrafficInformation.objects.all().filter(
+                project=WorkingProject.objects.all()[0].project,
+            )
+            for trafficInformation in trafficInformationList:
+                if 'Diameter' in trafficInformation.callType.name:
+                    trafficTPS += trafficInformation.trafficTPS
+
+    data = {'ActiveSubscriber': activeSubscriber,
+            'InactiveSubscriber': inactiveSubscriber,
+            'TrafficTPS': trafficTPS}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+
+
+
 
 # class SetWorkingProjectAction(BaseActionView):
 #     action_name = "set_working_Project_action"

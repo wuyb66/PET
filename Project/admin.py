@@ -2,12 +2,13 @@ from django.contrib import admin
 from django import forms
 from .models import Project, ProjectInformation, TrafficInformation, FeatureConfiguration, \
     DBConfiguration, CounterConfiguration, CallTypeCounterConfiguration, SystemConfiguration, \
-    Customer, WorkingProject, City1, Country, State, Address
+    Customer, WorkingProject, ApplicationConfiguration
+    # City1, Country, State, Address
     # Province, City, SelectP
 from Hardware.models import HardwareModel, HardwareType
-from .forms import ProjectForm, ProjectForm1, ProjectInformationForm, \
+from .forms import ProjectForm1, ProjectInformationForm, \
     TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, \
-    CallTypeCounterConfigurationForm, DBConfigurationForm, SystemConfigurationForm
+    CallTypeCounterConfigurationForm, DBConfigurationForm, SystemConfigurationForm, ApplicationConfigurationForm
 from django.contrib import messages
 # from ajax_select import make_ajax_form
 # from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline, AjaxSelectAdminStackedInline
@@ -729,11 +730,77 @@ class SystemConfigurationAdmin(admin.ModelAdmin):
         obj.project=WorkingProject.objects.all()[0].project
         super(SystemConfigurationAdmin, self).save_model(request, obj, form, change)
 
-class SelectPAdmin(admin.ModelAdmin):
+
+class ApplicationConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('applicationName', 'activeSubscriber', 'inactiveSubscriber',
+                    'trafficTPS', 'deployOption')
+
+    form = ApplicationConfigurationForm
+
+    list_filter = ('applicationName',)
+
+    search_fields = ('applicationName__name',)
+    # def has_add_permission(self, request):
+    #     if CounterConfiguration.objects.all().filter(project=WorkingProject.objects.all()[0].project).count() > 0:
+    #         return False
+    #     else:
+    #         return True
+
+    def get_readonly_fields(self, request, obj=None):
+        if WorkingProject.objects.count() == 0:
+            return ['applicationName', 'activeSubscriber', 'inactiveSubscriber',
+                    'trafficTPS', 'deployOption'
+                    ]
+        return self.readonly_fields
+
+    def get_queryset(self, request):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return ApplicationConfiguration.objects.none()
+        return super(ApplicationConfigurationAdmin, self).get_queryset(request). \
+            filter(
+            project=WorkingProject.objects.all()[0].project,
+        )
+
+    def get_fieldsets(self, request, obj=None):
+        additionMessage = ''
+        fields_row1 = ()
+        if WorkingProject.objects.count() == 0:
+            additionMessage = ' -- Please set working project first!'
+        return [
+            ('Application Information' + additionMessage, {
+                'fields': [
+                    fields_row1,
+                    ('applicationName', 'deployOption',),
+                ]}),
+            ('Subscriber Information', {
+                'fields': [
+                    ('activeSubscriber', 'inactiveSubscriber',),
+                ]}),
+            ('Traffic Information', {
+                'fields': [
+                    ('trafficTPS', ),
+                ]}),
+        ]
+
+    def save_model(self, request, obj, form, change):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return ApplicationConfiguration.objects.none()
+        obj.project = WorkingProject.objects.all()[0].project
+        super(ApplicationConfigurationAdmin, self).save_model(request, obj, form, change)
+
     class Media:
-        js = ('/static/js/jquery-2.1.1.js',
-              '/static/js/selectp.js',
+        js = ('/static/jquery-2.1.1.min.js',
+              '/static/js/other_application_information.js',
               )
+
+
+# class SelectPAdmin(admin.ModelAdmin):
+#     class Media:
+#         js = ('/static/js/jquery-2.1.1.js',
+#               '/static/js/selectp.js',
+#               )
 # class AddressAdmin(AjaxSelectAdmin):
 #
 #      form = AddressForm
@@ -756,10 +823,11 @@ admin.site.register(CounterConfiguration, CounterConfigurationAdmin)
 admin.site.register(CallTypeCounterConfiguration, CallTypeCounterConfigurationAdmin)
 admin.site.register(SystemConfiguration, SystemConfigurationAdmin)
 admin.site.register(Customer)
+admin.site.register(ApplicationConfiguration, ApplicationConfigurationAdmin)
 # admin.site.register(Province)
-admin.site.register(City1)
+# admin.site.register(City1)
 # admin.site.register(City)
-admin.site.register(Country)
-admin.site.register(State)
+# admin.site.register(Country)
+# admin.site.register(State)
 # admin.site.register(SelectP,SelectPAdmin)
 # admin.site.register(Address, AddressAdmin)

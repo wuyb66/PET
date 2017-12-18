@@ -61,7 +61,7 @@ class ApplicationInformation(models.Model):
     name = property(__str__)
 
 class OtherApplicationInformation(models.Model):
-    release = models.ForeignKey(Release, on_delete=models.CASCADE)
+    # release = models.ForeignKey(Release, on_delete=models.CASCADE)
     application = models.ForeignKey(ApplicationName, on_delete=models.CASCADE)
     hardwareModel = models.ForeignKey(HardwareModel, on_delete=models.CASCADE)
     #dbMode = models.ForeignKey(DBMode, on_delete=models.CASCADE)
@@ -71,28 +71,31 @@ class OtherApplicationInformation(models.Model):
     minClient = models.IntegerField()
     maxNodePerSystem = models.IntegerField()
 
-    def __str__(self):
-        return self.release.name + '_' + self.application.name + '_' + self.hardwareModel.name
+    @property
+    def name(self):
+        return self.application.name + '_' + self.hardwareModel.name
 
-    name = property(__str__)
+    def __str__(self):
+        return self.application.name
 
 class DBName(models.Model):
     name = models.CharField(max_length=20)
 
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['name']
-class DBInformation(models.Model):
-    db = models.ForeignKey(DBName, on_delete=models.CASCADE)
-    mode = models.ForeignKey(DBMode, on_delete=models.CASCADE)
-    release = models.ForeignKey(Release, on_delete=models.CASCADE)
-
-    recordSize = models.IntegerField(
+    ndbRefPlaceholderRatio = models.FloatField(
         default=0,
-        verbose_name='Record Size',
+        verbose_name='Reference Placeholder Ratio for NDB',
     )
+
+    isPrefixTable = models.BooleanField(
+        default=False,
+        verbose_name='Is Prefix Table?',
+    )
+
+    prefixTableIndexNumber = models.IntegerField(
+        default=0,
+        verbose_name='Prefix Table Index Number',
+    )
+
     rtdbOverhead = models.FloatField(
         default=0,
         verbose_name='RTDB Overhead',
@@ -109,6 +112,44 @@ class DBInformation(models.Model):
         default=0,
         verbose_name='Update Times',
     )     # Update times for todo log and mate log
+
+    defaultMemberFactor = models.FloatField(
+        default=0,
+        verbose_name='Default Factor for Member',
+    )
+
+    defaultGroupFactor = models.FloatField(
+        default=0,
+        verbose_name='Default Factor for Group',
+    )
+
+    defaultMemberCounterFactor = models.FloatField(
+        default=0,
+        verbose_name='Default Factor for Member Counter',
+    )
+
+    defaultGroupCounterFactor = models.FloatField(
+        default=0,
+        verbose_name='Default Factor for Group Counter',
+    )
+
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+class DBInformation(models.Model):
+    db = models.ForeignKey(DBName, on_delete=models.CASCADE)
+    mode = models.ForeignKey(DBMode, on_delete=models.CASCADE)
+    release = models.ForeignKey(Release, on_delete=models.CASCADE)
+
+    recordSize = models.IntegerField(
+        default=0,
+        verbose_name='Record Size',
+    )
+
+
 
     @property
     def name(self):
@@ -135,13 +176,14 @@ class FeatureDBImpact(models.Model):
     dbName = models.ForeignKey(DBName, on_delete=models.CASCADE)
     featureName = models.ForeignKey(FeatureName, on_delete=models.CASCADE)
 
-    memberImpactFactor = models.FloatField()
-    groupImpactFactor = models.FloatField()
+    memberImpactFactor = models.FloatField(default=0)
+    groupImpactFactor = models.FloatField(default=0)
 
     def __str__(self):
         return self.dbName.name + '_' + self.featureName.name
 
     name = property(__str__)
+
 
 class FeatureCPUImpact(models.Model):
     featureName = models.ForeignKey(FeatureName, on_delete=models.CASCADE)
@@ -161,6 +203,7 @@ class FeatureCPUImpact(models.Model):
         return self.featureName.name
 
     name = property(__str__)
+
 
 class CallType(models.Model):
     name = models.CharField(max_length=64, verbose_name='Call Type')
@@ -182,6 +225,7 @@ class CallType(models.Model):
     class Meta:
         ordering = ['name']
 
+
 class CallCost(models.Model):
     callType = models.ForeignKey(CallType, on_delete=models.CASCADE)
     release = models.ForeignKey(Release, on_delete=models.CASCADE)
@@ -195,19 +239,44 @@ class CallCost(models.Model):
 
     name = property(__str__)
 
+
+class FeatureCallTypeConfiguration(models.Model):
+    callType = models.ForeignKey(CallType, on_delete=models.CASCADE)
+    featureName = models.ForeignKey(FeatureName, on_delete=models.CASCADE)
+
+    featureApplicable = models.FloatField(default=1)
+
+
+
 class CounterCostName(models.Model):
     name = models.CharField(max_length=64)
 
     def __str__(self):
         return self.name
 
+
 class CounterCost(models.Model):
-    counterCostName = models.ForeignKey(CounterCostName, on_delete=models.CASCADE)
     release = models.ForeignKey(Release, on_delete=models.CASCADE)
     hardwareModel = models.ForeignKey(HardwareModel, on_delete=models.CASCADE)
-    cost = models.FloatField()
+    counterNumberPerRecord = models.IntegerField(default=6)
+    costDBReadUpdatePerRecord = models.FloatField(default=0)
+    costPerAppliedBucket = models.FloatField(default=0)
+    costPerAppliedUBD = models.FloatField(default=0)
+    costPerUnappliedBucket = models.FloatField(default=0)
+    costPerUnappliedUBD = models.FloatField(default=0)
+    costPerUnappliedCounterWithBasicCriteria = models.FloatField(default=0)
+    costTurnOnbucket = models.FloatField(default=0)
+    costTurnOnUBD = models.FloatField(default=0)
+    costTurnOnUnappliedCounter = models.FloatField(default=0)
+    costCounterNumberImpact = models.FloatField(default=0)
+    percentageCounterNumberImpact = models.FloatField(default=0)
+    costGroupDBReadUpdatePerRecord = models.FloatField(default=0)
+    costTurnOnGroupBucket = models.FloatField(default=0)
+    costPerGroupSideBucket = models.FloatField(default=0)
+    costBundlePerRecord = models.FloatField(default=0)
+    costPer24hBundle = models.FloatField(default=0)
 
     def __str__(self):
-        return self.counterCostName.name + '_' +  self.release.name + '_' + self.hardwareModel.name
+        return self.release.name + '_' + self.hardwareModel.name
 
     name = property(__str__)

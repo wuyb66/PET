@@ -5,14 +5,15 @@ from django.template import Template
 
 from .models import Project, ProjectInformation, WorkingProject, TrafficInformation, \
     FeatureConfiguration, DBConfiguration, CounterConfiguration, \
-    CallTypeCounterConfiguration, SystemConfiguration,\
-    Address, Country
+    CallTypeCounterConfiguration, SystemConfiguration, ApplicationConfiguration, DEPLOY_OPTION
+    # Address, Country
 from Hardware.models import HardwareType, HardwareModel, CPUTuning, MemoryUsageTuning, \
     CPUList, MemoryList, VMType
-from Service.models import Release, CallType, FeatureName, DBInformation
+from Service.models import Release, CallType, FeatureName, DBInformation, ApplicationName
 from Common.models import DBMode
 
 from django.forms.models import ModelForm
+from django.db.models import Q
 
 from django.core.urlresolvers import reverse_lazy
 from django.forms import ChoiceField, ModelChoiceField
@@ -65,14 +66,14 @@ from django.contrib import messages
 #         fields = '__all__'
 
 
-class ProjectForm(forms.ModelForm):
-    # name = fields.CharField(widget=TextInput(attrs={'size': 19,}),required=False,label='name')
-    # comment = fields.CharField(widget=Textarea(attrs={'rows':3,'cols':85}),required=False,label= 'comment')
-    # hardwareType = fields.m(widget=)
-
-    class Meta:
-        model = Project
-        fields = '__all__'
+# class ProjectForm(forms.ModelForm):
+#     # name = fields.CharField(widget=TextInput(attrs={'size': 19,}),required=False,label='name')
+#     # comment = fields.CharField(widget=Textarea(attrs={'rows':3,'cols':85}),required=False,label= 'comment')
+#     # hardwareType = fields.m(widget=)
+#
+#     class Meta:
+#         model = Project
+#         fields = '__all__'
 
 class ProjectForm1(ChainedChoicesModelForm):
     release = forms.ModelChoiceField(
@@ -102,8 +103,8 @@ class ProjectForm1(ChainedChoicesModelForm):
         fields = ['name', 'release', 'hardwareType', 'hardwareModel', 'customer', 'version', 'database_type', 'comment',]
         # fields = ['brand', 'model', ]
 
-class ProjectInformationForm(forms.ModelForm):
 
+class ProjectInformationForm(forms.ModelForm):
     if WorkingProject.objects.count() > 0:
         vmType = forms.ModelChoiceField(
             VMType.objects.all(),
@@ -608,7 +609,7 @@ class DBConfigurationForm(forms.ModelForm):
     )
     MEMBER_GROUP_OPTION = (('Member', 'Member'), ('Group', 'Group'))
     memberGroupOption = forms.ChoiceField(
-        initial='ember',
+        initial='Member',
         choices=MEMBER_GROUP_OPTION,
         label='DB Option'
     )
@@ -648,6 +649,48 @@ class SystemConfigurationForm(forms.ModelForm):
     class Meta:
         model = SystemConfiguration
         fields = '__all__'
+
+
+class ApplicationConfigurationForm(forms.ModelForm):
+    applicationName = forms.ModelChoiceField(
+        ApplicationName.objects.all().filter(
+            ~Q(name='EPAY'),
+        ),
+        empty_label=_(u'Select an Application Name'),
+        label='Application Name'
+    )
+
+    deployOption = forms.ChoiceField(
+        # empty_label=_(u'Select a Deploy Option'),
+        choices=DEPLOY_OPTION,
+        label='Deploy Option',
+    )
+
+    activeSubscriber = forms.IntegerField(
+        initial=0,
+        label='Active Subscriber',
+    )
+
+    inactiveSubscriber = forms.IntegerField(
+        initial=0,
+        label='Inctive Subscriber',
+    )
+
+    trafficTPS = forms.FloatField(
+        label='CPS/TPS',
+        initial=0,
+    )
+
+    class Meta:
+        model = ApplicationConfiguration
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super(ApplicationConfigurationForm, self).clean()
+        if WorkingProject.objects.count() == 0:
+            raise forms.ValidationError(
+                "Please set working project first!"
+            )
 
 
 class LoginForm(forms.Form):

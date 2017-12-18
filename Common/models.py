@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class GlobalConfiguration(models.Model):
     maintananceWindowHour = models.IntegerField(default=10)
     trafficPercentageUnderMaitananceWindow = models.FloatField(default=1)
@@ -8,7 +9,7 @@ class GlobalConfiguration(models.Model):
     releaseDBMemoryImpact = models.FloatField(default=0.1)
     releaseCountCPUImpact = models.FloatField(default=0.05)
     reservedCPURatio = models.FloatField(default=0.15)
-
+    ndbRTDBCostRatio = models.FloatField(default=1.3)
 
 
 class DBMode(models.Model):
@@ -18,6 +19,7 @@ class DBMode(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class NetworkInfo(models.Model):
     defaultSIGTRANLinkSpeed = models.IntegerField()

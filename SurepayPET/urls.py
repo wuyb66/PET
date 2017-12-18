@@ -35,13 +35,14 @@ urlpatterns = [
     # url(r'^index/$',project_views.index, name='select_index') ,
     # url(r'^getdata/$', project_views.getdata, name='getdata'),
     url(r'^getrecordsize/$', project_views.getRecordSize, name='getrecordsize'),
-    url(r'^province_to_city/$', project_views.province_to_city, name='province_to_city'),
+    url(r'^getotherappinformation/$', project_views.getOtherApplicationInformation, name='getotherappinformation'),
+    # url(r'^province_to_city/$', project_views.province_to_city, name='province_to_city'),
 
     url(r'^ajax/chained-hardware-models/$', AjaxHardwareModels.as_view(), name='ajax_hardware_models'),
 
-    url(r'^map/$',project_views.Map, name='Map'),
-    url(r'^GetCityData/$',project_views.Return_City_Data, name='GetCityData'),
-    url(r'^GetCountryData/$',project_views.Return_Country_Data, name='GetCountryData'),
+    # url(r'^map/$',project_views.Map, name='Map'),
+    # url(r'^GetCityData/$',project_views.Return_City_Data, name='GetCityData'),
+    # url(r'^GetCountryData/$',project_views.Return_Country_Data, name='GetCountryData'),
 
     url(r'^admin/', admin.site.urls),
     url(r'^chaining/', include('smart_selects.urls')),
