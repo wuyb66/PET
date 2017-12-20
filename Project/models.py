@@ -963,6 +963,12 @@ class CallTypeCounterConfiguration(models.Model):
 class SystemConfiguration(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
+    applicationName = models.ForeignKey(
+        ApplicationName,
+        on_delete=models.CASCADE,
+        verbose_name='Application Name'
+    )
+
     cabinetNumberPerSystem = models.IntegerField(
         default=1,
         verbose_name='Number of Cabinet Per System',
@@ -988,6 +994,10 @@ class SystemConfiguration(models.Model):
         return self.project.__str__()
 
     name = property(__str__)
+
+    class Meta:
+        verbose_name = 'System Configuration'
+        verbose_name_plural = 'System Configuration'
 
 
 DEPLOY_OPTION = (('EPAY Node', 'EPAY Node'), ('DRouter Node', 'DRouter Node'),
@@ -1085,3 +1095,97 @@ class ApplicationConfiguration(models.Model):
             if qs.filter(applicationName=self.applicationName).exists():
                 raise ValidationError('Application: %s existed!'%self.applicationName)
 
+    class Meta:
+        verbose_name = 'Application Configuration'
+        verbose_name_plural = 'Application Configuration'
+
+class CalculatedResult(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+    applicationName = models.ForeignKey(
+        ApplicationName,
+        on_delete=models.CASCADE,
+        verbose_name='Application Name'
+    )
+
+    appNodeNumber = models.IntegerField(default=0)
+    dbNodeNumber = models.IntegerField(default=0)
+    ioNodeNumber = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Calculated Result'
+        verbose_name_plural = 'Calculated Result'
+
+
+class DimensioningResult(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+    applicationName = models.ForeignKey(
+        ApplicationName,
+        on_delete=models.CASCADE,
+        verbose_name='Application Name'
+    )
+
+    systemNumber = models.IntegerField(default=0)
+    appNodeNeededNumber = models.IntegerField(default=0)
+    dbNodeNeededNumber = models.IntegerField(default=0)
+    ioNodeNeededNumber = models.IntegerField(default=0)
+    pilotNodeNeededNumber = models.IntegerField(default=0)
+    totalNodeNeededNumber = models.IntegerField(default=0)
+
+    averageClientCPUUsage = models.FloatField(default=0)
+    dbCacheSize = models.FloatField(default=0)     # MB
+    totalMemoryUsage = models.FloatField(default=0)     # MB
+    sigtranSpeed = models.FloatField(default=0)    # Byte/Second
+    ethernetPortsRequiredNumber = models.IntegerField(default=0)
+    totalTCPUDPSpeed = models.FloatField(default=0)    # Byte/Second
+    amaRecordNumberPerSecond = models.FloatField(default=0)
+    dialyBillingFileSize = models.FloatField(default=0)     # MB
+    amaRetrieveSpeed = models.FloatField(default=0)    # Byte/Second
+    ladpDiameterUDP = models.FloatField(default=0)    # Byte/Second
+    muSpeed = models.FloatField(default=0)    # Byte/Second
+
+    memoryUsagePerAppNode = models.FloatField(default=0)     # MB
+    memoryUsagePerClient = models.FloatField(default=0)     # MB
+    appNodeMemoryUsagePercent = models.FloatField(default=0)     # %
+
+    pilotSharedDiskSize = models.FloatField(default=0)     # MB
+    dbDiskSizeForMateUpdate = models.FloatField(default=0)     # MB
+    diskSizeForDB = models.FloatField(default=0)     # MB
+
+    class Meta:
+        verbose_name = 'Dimensioning Result'
+        verbose_name_plural = 'Dimensioning Result'
+
+
+class DimensioningResultPerSystem(models.Model):
+    dimensioningResult = models.ForeignKey(DimensioningResult, on_delete=models.CASCADE)
+
+    appNodeNumber = models.IntegerField(default=0)
+    dbNodeNumber = models.IntegerField(default=0)
+    ioNodeNumber = models.IntegerField(default=2)
+    pilotNodeNumber = models.IntegerField(default=2)
+    totalNodeNumber = models.IntegerField(default=0)
+
+    averageClientCPUUsage = models.FloatField(default=0)
+    dbCacheSize = models.FloatField(default=0)     # MB
+    totalMemoryUsage = models.FloatField(default=0)     # MB
+    sigtranSpeed = models.FloatField(default=0)    # Byte/Second
+    totalTCPUDPSpeed = models.FloatField(default=0)    # Byte/Second
+    amaRecordNumberPerSecond = models.FloatField(default=0)
+    dialyBillingFileSize = models.FloatField(default=0)     # MB
+    amaRetrieveSpeed = models.FloatField(default=0)    # Byte/Second
+    ladpDiameterUDP = models.FloatField(default=0)    # Byte/Second
+    muSpeed = models.FloatField(default=0)    # Byte/Second
+
+    memoryUsagePerAppNode = models.FloatField(default=0)     # MB
+    memoryUsagePerClient = models.FloatField(default=0)     # MB
+    appNodeMemoryUsagePercent = models.FloatField(default=0)     # %
+
+    pilotSharedDiskSize = models.FloatField(default=0)     # MB
+    dbDiskSizeForMateUpdate = models.FloatField(default=0)     # MB
+    diskSizeForDB = models.FloatField(default=0)     # MB
+
+    class Meta:
+        verbose_name = 'Dimensioning Result Per System'
+        verbose_name_plural = 'Dimensioning Result Per System'
