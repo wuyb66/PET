@@ -11,8 +11,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('Common', '0001_initial'),
-        ('Hardware', '0003_auto_20170608_1039'),
+        ('common', '0001_initial'),
+        ('hardware', '0003_auto_20170608_1039'),
     ]
 
     operations = [

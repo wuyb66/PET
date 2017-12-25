@@ -5,7 +5,7 @@ from .models import Project, ProjectInformation, TrafficInformation, FeatureConf
     Customer, WorkingProject, ApplicationConfiguration
     # City1, Country, State, Address
     # Province, City, SelectP
-from Hardware.models import HardwareModel, HardwareType
+from hardware.models import HardwareModel, HardwareType
 from .forms import ProjectForm1, ProjectInformationForm, \
     TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, \
     CallTypeCounterConfigurationForm, DBConfigurationForm, SystemConfigurationForm, ApplicationConfigurationForm

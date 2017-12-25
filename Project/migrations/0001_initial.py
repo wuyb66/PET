@@ -12,8 +12,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('Hardware', '0003_auto_20170608_1039'),
-        ('Service', '0001_initial'),
+        ('hardware', '0003_auto_20170608_1039'),
+        ('service', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Project',
+            name='project',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('customer', models.CharField(max_length=30)),

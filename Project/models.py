@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from Service.models import Release, CallType, FeatureName, DBInformation, CallCost, \
+from service.models import Release, CallType, FeatureName, DBInformation, CallCost, \
     ApplicationName, FeatureDBImpact, FeatureCallTypeConfiguration, FeatureCPUImpact, CounterCost
-from Hardware.models import CPUTuning, MemoryUsageTuning, HardwareModel, VMType, \
+from hardware.models import CPUTuning, MemoryUsageTuning, HardwareModel, VMType, \
     HardwareType, CPU, CPUList, MemoryList
-from Common.models import DBMode, GlobalConfiguration
+from common.models import DBMode, GlobalConfiguration
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import Group
 from django.conf import settings

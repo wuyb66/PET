@@ -9,8 +9,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Common', '0004_auto_20170615_1434'),
-        ('Service', '0007_auto_20170616_1345'),
+        ('common', '0004_auto_20170615_1434'),
+        ('service', '0007_auto_20170616_1345'),
     ]
 
     operations = [

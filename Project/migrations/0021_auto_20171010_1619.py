@@ -9,7 +9,7 @@ import smart_selects.db_fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Project', '0020_auto_20170929_1718'),
+        ('project', '0020_auto_20170929_1718'),
     ]
 
     # operations = [

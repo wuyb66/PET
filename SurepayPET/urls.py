@@ -16,8 +16,8 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from Project import views as project_views
-from Project.views import ProjectList, AjaxHardwareModels
+from project import views as project_views
+from project.views import ProjectList, AjaxHardwareModels
 
 # Uncomment the next two lines to enable the admin:
 # import xadmin

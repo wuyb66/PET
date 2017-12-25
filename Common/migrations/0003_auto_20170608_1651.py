@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Common', '0002_networkinfo'),
+        ('common', '0002_networkinfo'),
     ]
 
     operations = [

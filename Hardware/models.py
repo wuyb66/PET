@@ -2,7 +2,7 @@
     The file is used to define the tables related to hardware.
 '''
 from django.db import models
-from Common.models import DBMode
+from common.models import DBMode
 
 '''
     Define virtualization type.

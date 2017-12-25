@@ -66,10 +66,10 @@ INSTALLED_APPS = [
     'smart_selects',
     'clever_selects',
 
-    'Hardware.apps.HardwareConfig',
-    'Service.apps.ServiceConfig',
-    'Project.apps.ProjectConfig',
-    'Common.apps.CommonConfig',
+    'hardware.apps.HardwareConfig',
+    'service.apps.ServiceConfig',
+    'project.apps.ProjectConfig',
+    'common.apps.CommonConfig',
 ]
 
 MIDDLEWARE = [
@@ -142,6 +142,101 @@ LOGGING = {
             # 'propagate': True,
         }
     }
+}
+
+SUIT_CONFIG = {
+    'MENU': (
+
+        # Keep original label and models
+        'sites',
+
+        # Rename app and set icon
+        {'app': 'auth', 'label': 'Authorization', 'icon':'icon-lock'},
+
+        # Reorder app models
+        {'app': 'auth', 'models': ('user', 'group')},
+
+        {'app': 'common', 'label': 'Common', 'models': (
+            {'model': 'GlobalConfiguration', 'label': 'Global Configuration'},
+            {'model': 'DBMode', 'label': 'DB Mode'},
+            {'model': 'NetworkInfo', 'label': 'Network Information'},
+        ),},
+
+        {'app': 'hardware', 'label': 'Hardware', 'models': (
+            {'model': 'VMType', 'label': 'VM Type'},
+            {'model': 'CPU', 'label': 'CPU'},
+            {'model': 'HardwareType', 'label': 'Hardware Type'},
+            {'model': 'HardwareModel', 'label': 'Hardware Model'},
+            {'model': 'CPUList', 'label': 'CPU List'},
+            {'model': 'MemoryList', 'label': 'Memory List'},
+            {'model': 'CPUTuning', 'label': 'CPUTuning'},
+            {'model': 'MemoryUsageTuning', 'label': 'Memory Usage Tuning'},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+        ),},
+
+        {'app': 'service', 'label': 'Service', 'models': (
+            {'model': 'Release', 'label': 'Release'},
+            {'model': 'CurrentRelease', 'label': 'Current Release'},
+            {'model': 'ApplicationName', 'label': 'Application Name'},
+            {'model': 'ApplicationInformation', 'label': 'Application Information'},
+            {'model': 'OtherApplicationInformation', 'label': 'Other Application Information'},
+            {'model': 'DBName', 'label': 'DB Name'},
+            {'model': 'FeatureName', 'label': 'Feature Name'},
+            {'model': 'FeatureDBImpact', 'label': 'Database Impact by Feature'},
+            {'model': 'FeatureCPUImpact', 'label': 'CPU Impact by Feature'},
+            {'model': 'CallType', 'label': 'Call Type'},
+            {'model': 'CallCost', 'label': 'Call Cost'},
+            {'model': 'CounterCostName', 'label': 'Counter Cost Name'},
+            {'model': 'CounterCost', 'label': 'Counter Cost'},
+        ),},
+
+        {'app': 'project', 'label': 'Project', 'models': (
+            {'model': 'Project', 'label': 'Project'},
+            {'model': 'ProjectInformation', 'label': 'Project Information'},
+            {'model': 'TrafficInformation', 'label': 'Traffic Information'},
+            {'model': 'FeatureConfiguration', 'label': 'FeatureConfiguration'},
+            {'model': 'DBConfiguration', 'label': 'Database Configuration'},
+            {'model': 'CounterConfiguration', 'label': 'Counter Configuration'},
+            {'model': 'CallTypeCounterConfiguration', 'label': 'Counter Configuration per Call Type'},
+            {'model': 'SystemConfiguration', 'label': 'System Configuration'},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+            {'model': '', 'label': ''},
+        ),},
+
+        {'label': 'Misc', 'models': (
+
+            {'model': 'project.customer', 'label': 'Customer Configuration'},
+        ),},
+
+        # {'app': 'project', 'label': 'Project', 'models': ({'model': 'project.Customer', 'label': 'Project'}, 'auth.user', 'auth.group',)},
+
+        # Custom app, with models
+        {'label': 'Settings', 'icon':'icon-cog', 'models': ('auth.user', 'auth.group', 'auth.permission')},
+
+        # Cross-linked models with custom name; Hide default icon
+        {'label': 'Custom', 'icon':None, 'models': (
+            'auth.group',
+            {'model': 'auth.user', 'label': 'Staff'}
+        )},
+
+        # Custom app, no models (child links)
+        {'label': 'Users', 'url': 'auth.user', 'icon':'icon-user'},
+
+        # Separator
+        '-',
+
+        # Custom app and model with permissions
+        {'label': 'Secure', 'permissions': 'auth.add_user', 'models': [
+            {'label': 'custom-child', 'permissions': ('auth.add_user', 'auth.add_group')}
+        ]},
+    )
 }
 
 WSGI_APPLICATION = 'SurepayPET.wsgi.application'

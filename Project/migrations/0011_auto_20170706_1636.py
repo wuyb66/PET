@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('auth', '0008_alter_user_username_max_length'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('Project', '0010_auto_20170705_1521'),
+        ('project', '0010_auto_20170705_1521'),
     ]
 
     operations = [

@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Common', '0007_remove_globalconfiguration_releasesequence'),
+        ('common', '0007_remove_globalconfiguration_releasesequence'),
     ]
 
     operations = [

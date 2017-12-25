@@ -7,10 +7,10 @@ from .models import Project, ProjectInformation, WorkingProject, TrafficInformat
     FeatureConfiguration, DBConfiguration, CounterConfiguration, \
     CallTypeCounterConfiguration, SystemConfiguration, ApplicationConfiguration, DEPLOY_OPTION
     # Address, Country
-from Hardware.models import HardwareType, HardwareModel, CPUTuning, MemoryUsageTuning, \
+from hardware.models import HardwareType, HardwareModel, CPUTuning, MemoryUsageTuning, \
     CPUList, MemoryList, VMType
-from Service.models import Release, CallType, FeatureName, DBInformation, ApplicationName
-from Common.models import DBMode
+from service.models import Release, CallType, FeatureName, DBInformation, ApplicationName
+from common.models import DBMode
 
 from django.forms.models import ModelForm
 from django.db.models import Q

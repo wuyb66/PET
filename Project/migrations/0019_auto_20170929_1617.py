@@ -9,8 +9,8 @@ import smart_selects.db_fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Hardware', '0011_hardwaretype_cpus'),
-        ('Project', '0018_auto_20170915_1735'),
+        ('hardware', '0011_hardwaretype_cpus'),
+        ('project', '0018_auto_20170915_1735'),
     ]
 
     operations = [

@@ -10,13 +10,13 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.core import serializers, urlresolvers
 
-from Service.models import CurrentRelease
+from service.models import CurrentRelease
 
 from . import forms
 from .models import Project, TrafficInformation, WorkingProject, FeatureConfiguration, \
     ProjectInformation, ApplicationConfiguration
-from Hardware.models import HardwareModel, HardwareType
-from Service.models import DBInformation, FeatureDBImpact, FeatureName, ApplicationName
+from hardware.models import HardwareModel, HardwareType
+from service.models import DBInformation, FeatureDBImpact, FeatureName, ApplicationName
 from .forms import ProjectForm1
 
 import json

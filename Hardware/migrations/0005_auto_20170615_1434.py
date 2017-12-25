@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Hardware', '0004_delete_networkinfo'),
+        ('hardware', '0004_delete_networkinfo'),
     ]
 
     operations = [

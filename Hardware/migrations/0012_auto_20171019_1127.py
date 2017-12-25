@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Hardware', '0011_hardwaretype_cpus'),
+        ('hardware', '0011_hardwaretype_cpus'),
     ]
 
     operations = [

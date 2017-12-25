@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Service', '0002_calltype_ndbcpuusagelimitation'),
+        ('service', '0002_calltype_ndbcpuusagelimitation'),
     ]
 
     operations = [

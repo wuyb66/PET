@@ -1,6 +1,6 @@
 from django.db import models
-from Hardware.models import CPU, HardwareModel
-from Common.models import DBMode
+from hardware.models import CPU, HardwareModel
+from common.models import DBMode
 
 
 class Release(models.Model):
