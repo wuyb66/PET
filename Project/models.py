@@ -424,7 +424,7 @@ class TrafficInformation(models.Model):
     name = property(__str__)
 
     class Meta:
-        db_table = 'Traffic Information'
+        # db_table = 'Traffic Information'
         unique_together = ("project", "callType")
 
 class FeatureConfiguration(models.Model):
@@ -1099,6 +1099,21 @@ class ApplicationConfiguration(models.Model):
         verbose_name = 'Application Configuration'
         verbose_name_plural = 'Application Configuration'
 
+
+class CalculatedResultManager(models.Manager):
+    def create_calculatedResult(
+            self, project, applicationName, appNodeNumber,
+            dbNodeNumber, ioNodeNumber, ):
+        calculatedResult = self.create(
+            project = project,
+            applicationName = applicationName,
+            appNodeNumber = appNodeNumber,
+            dbNodeNumber = dbNodeNumber,
+            ioNodeNumber = ioNodeNumber,
+        )
+        return calculatedResult
+
+
 class CalculatedResult(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
@@ -1111,6 +1126,8 @@ class CalculatedResult(models.Model):
     appNodeNumber = models.IntegerField(default=0)
     dbNodeNumber = models.IntegerField(default=0)
     ioNodeNumber = models.IntegerField(default=0)
+
+    objects = CalculatedResultManager()
 
     class Meta:
         verbose_name = 'Calculated Result'

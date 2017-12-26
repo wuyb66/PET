@@ -158,7 +158,7 @@ SUIT_CONFIG = {
 
         {'app': 'common', 'label': 'Common', 'models': (
             {'model': 'GlobalConfiguration', 'label': 'Global Configuration'},
-            {'model': 'DBMode', 'label': 'DB Mode'},
+            {'model': 'DBMode', 'label': 'Database Mode'},
             {'model': 'NetworkInfo', 'label': 'Network Information'},
         ),},
 
@@ -169,7 +169,7 @@ SUIT_CONFIG = {
             {'model': 'HardwareModel', 'label': 'Hardware Model'},
             {'model': 'CPUList', 'label': 'CPU List'},
             {'model': 'MemoryList', 'label': 'Memory List'},
-            {'model': 'CPUTuning', 'label': 'CPUTuning'},
+            {'model': 'CPUTuning', 'label': 'CPU Tuning'},
             {'model': 'MemoryUsageTuning', 'label': 'Memory Usage Tuning'},
             {'model': '', 'label': ''},
             {'model': '', 'label': ''},
@@ -203,7 +203,7 @@ SUIT_CONFIG = {
             {'model': 'CounterConfiguration', 'label': 'Counter Configuration'},
             {'model': 'CallTypeCounterConfiguration', 'label': 'Counter Configuration per Call Type'},
             {'model': 'SystemConfiguration', 'label': 'System Configuration'},
-            {'model': '', 'label': ''},
+            {'model': 'CalculatedResult', 'label': 'Calculated Result'},
             {'model': '', 'label': ''},
             {'model': '', 'label': ''},
             {'model': '', 'label': ''},

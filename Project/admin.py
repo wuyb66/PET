@@ -1,11 +1,15 @@
 from django.contrib import admin
+from django.conf.urls import url
+from django.shortcuts import redirect
 from django import forms
 from .models import Project, ProjectInformation, TrafficInformation, FeatureConfiguration, \
     DBConfiguration, CounterConfiguration, CallTypeCounterConfiguration, SystemConfiguration, \
-    Customer, WorkingProject, ApplicationConfiguration
+    Customer, WorkingProject, ApplicationConfiguration, CalculatedResult, DimensioningResult, \
+    DimensioningResultPerSystem
     # City1, Country, State, Address
     # Province, City, SelectP
 from hardware.models import HardwareModel, HardwareType
+from service.models import  ApplicationName
 from .forms import ProjectForm1, ProjectInformationForm, \
     TrafficInformationForm, FeatureConfigurationForm, CounterConfigurationForm, \
     CallTypeCounterConfigurationForm, DBConfigurationForm, SystemConfigurationForm, ApplicationConfigurationForm
@@ -813,6 +817,110 @@ class ApplicationConfigurationAdmin(admin.ModelAdmin):
 #         css = {
 #             'all':'/static/xadmin/vendor/jquery-ui/jquery-ui.theme.css'
 #
+class CalculatedResultAdmin(admin.ModelAdmin):
+    list_display = ('applicationName', 'appNodeNumber', 'dbNodeNumber',
+                    'ioNodeNumber')
+
+    # form = ApplicationConfigurationForm
+
+    list_filter = ('applicationName',)
+
+    search_fields = ('applicationName__name',)
+
+    # change_list_template = "path/to/change_list.html"
+
+    def has_add_permission(self, request):
+        return False
+        # if CalculatedResult.objects.all().filter(project=WorkingProject.objects.all()[0].project).count() > 0:
+        #     return False
+        # else:
+        #     return True
+
+
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
+
+    def get_readonly_fields(self, request, obj=None):
+        if WorkingProject.objects.count() == 0:
+            return ['applicationName', 'appNodeNumber', 'dbNodeNumber',
+                    'ioNodeNumber'
+                    ]
+        return self.readonly_fields
+
+    def get_queryset(self, request):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return CalculatedResult.objects.none()
+        return super(CalculatedResultAdmin, self).get_queryset(request). \
+            filter(
+            project=WorkingProject.objects.all()[0].project,
+        )
+
+    def get_fieldsets(self, request, obj=None):
+        additionMessage = ''
+        fields_row1 = ()
+        if WorkingProject.objects.count() == 0:
+            additionMessage = ' -- Please set working project first!'
+        return [
+            ('Application Information' + additionMessage, {
+                'fields': [
+                    fields_row1,
+                    ('applicationName', ),
+                ]}),
+            ('Calculated Nodes Information', {
+                'fields': [
+                    ('appNodeNumber', 'dbNodeNumber',),
+                    ('ioNodeNumber', ),
+                ]}),
+        ]
+
+    def save_model(self, request, obj, form, change):
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+            return CalculatedResult.objects.none()
+        obj.project = WorkingProject.objects.all()[0].project
+        super(CalculatedResultAdmin, self).save_model(request, obj, form, change)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [url(r'^project/calculatedresult/calculate/$', self.admin_site.admin_view(self.calculate)),]
+
+        return my_urls + urls
+
+    def calculate(self, request):
+        # print('doing evil with', CalculatedResult.objects.get(pk=int(pk)))
+        if WorkingProject.objects.count() == 0:
+            self.message_user(request, 'Please set working project first!', level=messages.ERROR)
+
+
+        CalculatedResult.objects.all().filter(
+            project=WorkingProject.objects.all()[0].project,
+        ).delete()
+
+        callTypeCounterConfiguration = CalculatedResult.objects.create_calculatedResult(
+            project=WorkingProject.objects.all()[0].project,
+            applicationName = ApplicationName.objects.all().filter(name='EPAY')[0] ,
+            appNodeNumber = 5,
+            dbNodeNumber = 2,
+            ioNodeNumber = 2,
+        )
+
+        return redirect('/admin/project/calculatedresult/')
+
+    class Media:
+        js = ('/static/jquery-2.1.1.min.js',
+              '/static/js/other_application_information.js',
+              )
+
+
+
+class DimensioningResultAdmin(admin.ModelAdmin):
+    pass
+
+
+class DimensioningResultPerSystemAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ProjectInformation, ProjectInformationAdmin)
@@ -824,6 +932,8 @@ admin.site.register(CallTypeCounterConfiguration, CallTypeCounterConfigurationAd
 admin.site.register(SystemConfiguration, SystemConfigurationAdmin)
 admin.site.register(Customer)
 admin.site.register(ApplicationConfiguration, ApplicationConfigurationAdmin)
+admin.site.register(CalculatedResult, CalculatedResultAdmin)
+
 # admin.site.register(Province)
 # admin.site.register(City1)
 # admin.site.register(City)
